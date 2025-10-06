@@ -1,0 +1,154 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  :root {
+    /* macOS-inspired color palette */
+    --background: 0 0% 98%;
+    --foreground: 222 15% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 15% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 15% 20%;
+
+    /* Primary: macOS blue - professional and modern */
+    --primary: 211 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 211 100% 65%;
+    --primary-dark: 211 100% 40%;
+
+    /* Secondary: soft gray */
+    --secondary: 220 15% 96%;
+    --secondary-foreground: 222 15% 20%;
+
+    /* Muted: subtle backgrounds */
+    --muted: 220 15% 95%;
+    --muted-foreground: 222 10% 45%;
+
+    /* Accent: complementary teal */
+    --accent: 187 85% 48%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 85% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 90%;
+    --input: 220 15% 92%;
+    --ring: 211 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(211, 100%, 50%), hsl(211, 100%, 65%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0, 0%, 100%), hsl(220, 15%, 98%));
+    --gradient-hero: linear-gradient(135deg, hsl(211, 100%, 50%) 0%, hsl(187, 85%, 48%) 100%);
+
+    /* Shadows - macOS style */
+    --shadow-sm: 0 1px 2px 0 hsl(222 15% 20% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(222 15% 20% / 0.08), 0 2px 4px -2px hsl(222 15% 20% / 0.04);
+    --shadow-lg: 0 10px 15px -3px hsl(222 15% 20% / 0.08), 0 4px 6px -4px hsl(222 15% 20% / 0.04);
+    --shadow-xl: 0 20px 25px -5px hsl(222 15% 20% / 0.08), 0 8px 10px -6px hsl(222 15% 20% / 0.04);
+    --shadow-glow: 0 0 40px hsl(211 100% 50% / 0.2);
+
+    /* Blur effect */
+    --blur-glass: blur(12px);
+
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 222 20% 8%;
+    --foreground: 220 15% 95%;
+
+    --card: 222 20% 10%;
+    --card-foreground: 220 15% 95%;
+
+    --popover: 222 20% 10%;
+    --popover-foreground: 220 15% 95%;
+
+    --primary: 211 100% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 211 100% 70%;
+    --primary-dark: 211 100% 45%;
+
+    --secondary: 222 20% 15%;
+    --secondary-foreground: 220 15% 95%;
+
+    --muted: 222 20% 14%;
+    --muted-foreground: 222 10% 60%;
+
+    --accent: 187 85% 52%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 85% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 20% 18%;
+    --input: 222 20% 16%;
+    --ring: 211 100% 55%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(211, 100%, 55%), hsl(211, 100%, 70%));
+    --gradient-subtle: linear-gradient(180deg, hsl(222, 20%, 10%), hsl(222, 20%, 8%));
+    --gradient-hero: linear-gradient(135deg, hsl(211, 100%, 55%) 0%, hsl(187, 85%, 52%) 100%);
+
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.3), 0 8px 10px -6px hsl(0 0% 0% / 0.2);
+    --shadow-glow: 0 0 40px hsl(211 100% 55% / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+/* macOS-inspired utility classes */
+@layer utilities {
+  .glass-effect {
+    background: hsl(var(--card) / 0.7);
+    backdrop-filter: var(--blur-glass);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .shadow-glass {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .hover-lift {
+    transition: var(--transition-smooth);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
