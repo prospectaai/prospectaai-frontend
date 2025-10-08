@@ -1,5 +1,4 @@
 <div class="min-h-screen bg-background">
-
   <!-- Header -->
   <header class="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/40">
     <div class="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -18,8 +17,8 @@
       </nav>
 
       <div class="flex items-center gap-4">
-        <ui-button variant="ghost" size="sm" routerLink="/dashboard">Login</ui-button>
-        <ui-button size="sm" className="bg-primary hover:bg-primary/90">Começar Grátis</ui-button>
+        <a routerLink="/auth"><ui-button variant="ghost" size="sm" routerLink="/dashboard">Login</ui-button></a>
+        <ui-button routerLink="/auth" size="sm" class="text-white" className="bg-primary hover:bg-primary/90">Começar Grátis</ui-button>
       </div>
     </div>
   </header>
@@ -29,9 +28,9 @@
     <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background"></div>
     <div class="container mx-auto px-6 relative z-10">
       <div class="max-w-4xl mx-auto">
-        <span class="mb-6 inline-block bg-primary/10 text-primary border border-primary/20 rounded px-4 py-1">
+        <ui-badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:text-white">
           🚀 Automação Inteligente de Prospecção
-        </span>
+        </ui-badge>
         <h1 class="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
           Encontre Milhares de Clientes em Potencial no Piloto Automático
         </h1>
@@ -40,7 +39,7 @@
           Economize horas de trabalho e foque no que importa: fechar vendas.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <ui-button size="lg" className="bg-primary hover:bg-primary/90 text-base px-8">Iniciar Teste Gratuito de 14 Dias</ui-button>
+          <ui-button size="lg" class="text-white" className="bg-primary hover:bg-primary/90 text-base px-8">Iniciar Teste Gratuito de 14 Dias</ui-button>
           <ui-button size="lg" variant="outline" class="btn btn-outline btn-lg px-8">Ver Demonstração</ui-button>
         </div>
         <p class="text-sm text-muted-foreground mt-4">
@@ -66,9 +65,9 @@
   <section id="features" class="py-20 md:py-32">
     <div class="container mx-auto px-6">
       <div class="text-center mb-16">
-        <span class="mb-4 inline-block bg-primary/10 text-primary border border-primary/20 rounded px-4 py-1">
+        <ui-badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:text-white">
           Funcionalidades
-        </span>
+        </ui-badge>
         <h2 class="text-3xl md:text-5xl font-bold mb-4">
           Tudo que você precisa para prospectar melhor
         </h2>
@@ -78,12 +77,17 @@
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div *ngFor="let feature of features" class="p-6 bg-card/50 border border-border/40 rounded-xl hover:shadow-lg transition-all">
-          <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 text-primary">
-            <i-lucide [name]="feature.icon" class="h-6 w-6"></i-lucide>
-          </div>
-          <h3 class="text-lg font-semibold mb-2">{{ feature.title }}</h3>
-          <p class="text-muted-foreground text-sm">{{ feature.description }}</p>
+        <div *ngFor="let feature of features; let i = index">
+          <ui-card className="max-w-sm">
+            <ui-card-content className="pt-6 hover:shadow-glass-lg transition-all duration-300 animate-scale-in backdrop-blur-sm bg-card/50 border-border/40" [style.animation-delay.ms]="i * 100" >
+              <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                <i-lucide [name]="feature.icon" class="h-6 w-6"></i-lucide>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">{{ feature.title }}</h3>
+              <p class="text-muted-foreground text-sm">{{ feature.description }}</p>
+            </ui-card-content>
+          </ui-card>
+
         </div>
       </div>
     </div>
@@ -93,7 +97,7 @@
   <section id="demo" class="py-20 md:py-32 bg-muted/20">
     <div class="container mx-auto px-6">
       <div class="text-center mb-16">
-        <span class="mb-4 inline-block bg-primary/10 text-primary border border-primary/20 rounded px-4 py-1">Demonstração</span>
+        <ui-badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:text-white">Demonstração</ui-badge>
         <h2 class="text-3xl md:text-5xl font-bold mb-4">Veja a plataforma em ação</h2>
         <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
           Interface intuitiva e poderosa para gerenciar toda sua prospecção
@@ -130,7 +134,7 @@
   <section id="pricing" class="py-20 md:py-32">
     <div class="container mx-auto px-6">
       <div class="text-center mb-16">
-        <span class="mb-4 inline-block bg-primary/10 text-primary border border-primary/20 rounded px-4 py-1">Planos e Preços</span>
+        <ui-badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:text-white">Planos e Preços</ui-badge>
         <h2 class="text-3xl md:text-5xl font-bold mb-4">Escolha o plano ideal para você</h2>
         <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
           Todos os planos incluem 14 dias de teste grátis. Cancele quando quiser.
@@ -166,7 +170,7 @@
   <section id="testimonials" class="py-20 md:py-32 bg-muted/20">
     <div class="container mx-auto px-6">
       <div class="text-center mb-16">
-        <span class="mb-4 inline-block bg-primary/10 text-primary border border-primary/20 rounded px-4 py-1">Depoimentos</span>
+        <ui-badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:text-white">Depoimentos</ui-badge>
         <h2 class="text-3xl md:text-5xl font-bold mb-4">O que nossos clientes dizem</h2>
         <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
           Histórias reais de profissionais que transformaram sua prospecção

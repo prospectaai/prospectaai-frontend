@@ -2,6 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { ButtonComponent } from "../../../components/ui/button/button.component";
+import { BadgeComponent } from "../../../components/ui/badge/badge.component";
+import { CardComponent } from "../../../components/ui/card/card.component";
+import { CardContentComponent } from "../../../components/ui/card-content/card-content.component";
+import { RouterLink } from '@angular/router';
 
 
 @Component({
@@ -9,7 +13,11 @@ import { ButtonComponent } from "../../../components/ui/button/button.component"
   imports: [
     CommonModule,
     ButtonComponent,
-    LucideAngularModule
+    LucideAngularModule,
+    BadgeComponent,
+    CardComponent,
+    CardContentComponent,
+    RouterLink
 ],
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.css'

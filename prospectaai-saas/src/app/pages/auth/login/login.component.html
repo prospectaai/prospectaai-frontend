@@ -1,0 +1,123 @@
+<div class="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+
+    <!-- Logo -->
+    <a routerLink="/" class="flex items-center justify-center gap-2 mb-8 group">
+      <div class="p-2 rounded-xl bg-primary/10 backdrop-blur-glass border border-primary/20 group-hover:bg-primary/20 transition-all">
+        <i-lucide name="target" class="w-6 h-6 text-primary"></i-lucide>
+      </div>
+      <span class="text-2xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+        PropectaAI
+      </span>
+    </a>
+
+    <!-- Auth Card -->
+    <ui-card class="backdrop-blur-glass bg-card/80 border-border/50 shadow-glass-lg">
+      <ui-card-header class="space-y-1 pb-4">
+        <ui-card-title class="text-2xl font-semibold text-center">Bem-vindo</ui-card-title>
+        <ui-card-description class="text-center text-muted-foreground">
+          Faça login ou crie sua conta para começar
+        </ui-card-description>
+      </ui-card-header>
+
+      <ui-card-content>
+        <ui-tabs defaultValue="login" class="w-full">
+          <ui-tabs-list class="grid w-full mb-6">
+            <ui-tabs-trigger class="w-full" value="login">Login</ui-tabs-trigger>
+            <ui-tabs-trigger class="w-full" value="signup">Cadastro</ui-tabs-trigger>
+          </ui-tabs-list>
+
+          <!-- Login -->
+          <ui-tabs-content value="login" class="space-y-4">
+            <form (submit)="handleLogin($event)" class="space-y-4">
+              <div class="space-y-2">
+                <ui-label for="login-email">Email</ui-label>
+                <div class="relative">
+                  <lucide-icon name="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
+                  <ui-input id="login-email" type="email" placeholder="seu@email.com" className="pl-14" required />
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <ui-label for="login-password">Senha</ui-label>
+                  <button type="button" class="text-xs text-primary hover:text-primary/80 transition-colors">
+                    Esqueceu a senha?
+                  </button>
+                </div>
+                <div class="relative">
+                  <i-lucide name="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
+                  <ui-input id="login-password" type="password" placeholder="••••••••" className="pl-14" required />
+                </div>
+              </div>
+
+              <ui-button type="submit" className="mt-5 w-full text-white" [disabled]="isLoading()">
+                {{ isLoading() ? 'Entrando...' : 'Entrar' }}
+              </ui-button>
+            </form>
+          </ui-tabs-content>
+
+          <!-- Signup -->
+          <ui-tabs-content value="signup" class="space-y-4">
+            <form (submit)="handleSignup($event)" class="space-y-4">
+              <div class="space-y-2">
+                <ui-label for="signup-name">Nome</ui-label>
+                <div class="relative">
+                  <lucide-icon name="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
+                  <ui-input id="signup-name" type="text" placeholder="Seu nome" class="pl-10" required />
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <ui-label for="signup-email">Email</ui-label>
+                <div class="relative">
+                  <lucide-icon name="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
+                  <ui-input id="signup-email" type="email" placeholder="seu@email.com" class="pl-10" required />
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <ui-label for="signup-password">Senha</ui-label>
+                <div class="relative">
+                  <lucide-icon name="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
+                  <ui-input id="signup-password" type="password" placeholder="••••••••" class="pl-10" required />
+                </div>
+              </div>
+
+              <div class="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs text-center text-muted-foreground">
+                Após o cadastro, você será direcionado para escolher seu plano e efetuar o pagamento.
+              </div>
+
+              <ui-button type="submit" class="w-full" [disabled]="isLoading()">
+                {{ isLoading() ? 'Criando conta...' : 'Criar conta' }}
+              </ui-button>
+            </form>
+          </ui-tabs-content>
+        </ui-tabs>
+
+        <!-- Divider -->
+        <div class="relative my-6">
+          <div class="absolute inset-0 flex items-center">
+            <span class="w-full border-t border-border/50"></span>
+          </div>
+          <div class="relative flex justify-center text-xs uppercase">
+            <span class="bg-card px-2 text-muted-foreground">ou continue com</span>
+          </div>
+        </div>
+
+        <!-- Social Buttons -->
+        <div class="flex gap-1">
+          <ui-button class="w-full" variant="outline" type="button" [disabled]="isLoading()">Google</ui-button>
+          <ui-button class="w-full" variant="outline" type="button" [disabled]="isLoading()">GitHub</ui-button>
+        </div>
+      </ui-card-content>
+    </ui-card>
+
+    <!-- Footer -->
+    <p class="text-center text-xs text-muted-foreground mt-6">
+      Ao criar uma conta, você concorda com nossos
+      <a href="#" class="text-primary hover:text-primary/80 transition-colors">Termos de Serviço</a> e
+      <a href="#" class="text-primary hover:text-primary/80 transition-colors">Política de Privacidade</a>.
+    </p>
+  </div>
+</div>
