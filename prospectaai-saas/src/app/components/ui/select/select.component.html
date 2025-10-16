@@ -1,0 +1,37 @@
+<div class="relative inline-block w-full text-sm">
+  <!-- Trigger -->
+  <button
+    type="button"
+    (click)="toggleDropdown()"
+    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    <span class="truncate">{{ value || placeholder }}</span>
+    <lucide-icon
+      [name]="open ? 'chevron-up' : 'chevron-down'"
+      class="h-4 w-4 opacity-50"
+    ></lucide-icon>
+  </button>
+
+  <!-- Dropdown -->
+  <div
+    *ngIf="open"
+    class="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+  >
+    <div class="p-1">
+      <button
+        *ngFor="let option of options"
+        type="button"
+        (click)="selectOption(option)"
+        class="relative flex w-full select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-left text-sm hover:bg-accent hover:text-accent-foreground"
+      >
+        <span
+          class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center"
+          *ngIf="option === value"
+        >
+          <lucide-icon name="check" class="h-4 w-4"></lucide-icon>
+        </span>
+        {{ option }}
+      </button>
+    </div>
+  </div>
+</div>

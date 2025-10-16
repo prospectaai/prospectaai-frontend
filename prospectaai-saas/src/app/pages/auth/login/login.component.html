@@ -33,7 +33,7 @@
               <div class="space-y-2">
                 <ui-label for="login-email">Email</ui-label>
                 <div class="relative">
-                  <lucide-icon name="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
+                  <i-lucide name="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
                   <ui-input id="login-email" type="email" placeholder="seu@email.com" className="pl-14" required />
                 </div>
               </div>
@@ -63,24 +63,24 @@
               <div class="space-y-2">
                 <ui-label for="signup-name">Nome</ui-label>
                 <div class="relative">
-                  <lucide-icon name="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
-                  <ui-input id="signup-name" type="text" placeholder="Seu nome" class="pl-10" required />
+                  <i-lucide name="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
+                  <ui-input id="signup-name" type="text" placeholder="Seu nome" className="pl-14" required />
                 </div>
               </div>
 
               <div class="space-y-2">
                 <ui-label for="signup-email">Email</ui-label>
                 <div class="relative">
-                  <lucide-icon name="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
-                  <ui-input id="signup-email" type="email" placeholder="seu@email.com" class="pl-10" required />
+                  <i-lucide name="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
+                  <ui-input id="signup-email" type="email" placeholder="seu@email.com" className="pl-14" required />
                 </div>
               </div>
 
               <div class="space-y-2">
                 <ui-label for="signup-password">Senha</ui-label>
                 <div class="relative">
-                  <lucide-icon name="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
-                  <ui-input id="signup-password" type="password" placeholder="••••••••" class="pl-10" required />
+                  <i-lucide name="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
+                  <ui-input id="signup-password" type="password" placeholder="••••••••" className="pl-14" required />
                 </div>
               </div>
 
@@ -88,7 +88,7 @@
                 Após o cadastro, você será direcionado para escolher seu plano e efetuar o pagamento.
               </div>
 
-              <ui-button type="submit" class="w-full" [disabled]="isLoading()">
+              <ui-button type="submit" className="mt-5 w-full text-white" [disabled]="isLoading()">
                 {{ isLoading() ? 'Criando conta...' : 'Criar conta' }}
               </ui-button>
             </form>
@@ -105,10 +105,11 @@
           </div>
         </div>
 
+
         <!-- Social Buttons -->
-        <div class="flex gap-1">
-          <ui-button class="w-full" variant="outline" type="button" [disabled]="isLoading()">Google</ui-button>
-          <ui-button class="w-full" variant="outline" type="button" [disabled]="isLoading()">GitHub</ui-button>
+        <div class="grid grid-flow-col gap-1">
+          <ui-button className="w-full" variant="outline" type="button" [disabled]="isLoading()">Google</ui-button>
+          <ui-button className="w-full" variant="outline" type="button" [disabled]="isLoading()">GitHub</ui-button>
         </div>
       </ui-card-content>
     </ui-card>

@@ -7,12 +7,16 @@ import { TabsComponent } from '../tabs/tabs.component';
   imports: [CommonModule],
   template: '<ng-content></ng-content>',
    host: {
-    '[class]': "'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'",
+    '[class]': `'cursor-pointer inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'`,
     '[class.bg-background]': 'isActive',
     '[class.text-foreground]': 'isActive',
+    '[class.shadow-sm]': 'isActive',
     '[class.data-[state=active]:bg-white]': 'true',
+    '[class.data-[state=active]:hover:bg-white/90]': 'true',
     '[class.data-[state=inactive]:bg-transparent]': 'true',
-    '[class.data-[state=inactive]:hover:bg-muted/30]': 'true',
+    '[class.data-[state=inactive]:hover:bg-muted/50]': 'true',
+    '[class.data-[state=inactive]:hover:text-foreground/80]': 'true',
+    '[class.rounded-md]': 'true',
   },
   styleUrl: './tabs-trigger.component.css'
 })

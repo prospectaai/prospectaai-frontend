@@ -1,0 +1,13 @@
+<div class="min-h-screen flex flex-col bg-background text-foreground">
+  <header class="p-4 border-b border-border/50 flex items-center justify-between">
+    <h1 class="text-lg font-semibold">PropectaAI</h1>
+    <nav>
+      <a routerLink="/saas/dashboard" class="cursor-pointer text-sm text-muted-foreground hover:text-primary">Dashboard</a>
+      <a routerLink="/saas/prospect" class="cursor-pointer text-sm text-muted-foreground hover:text-primary">Prospecção</a>
+    </nav>
+  </header>
+
+  <main class="flex-1 p-6">
+    <ng-content></ng-content>
+  </main>
+</div>

@@ -1,0 +1,28 @@
+<div class="relative flex w-full touch-none select-none items-center">
+  <!-- Trilho -->
+  <div class="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
+    <!-- Faixa preenchida -->
+    <div
+      class="absolute h-full bg-primary transition-all"
+      [style.width]="rangeWidth"
+    ></div>
+  </div>
+
+  <!-- Input nativo invisível -->
+  <input
+    type="range"
+    class="absolute inset-0 w-full h-2 opacity-0 cursor-pointer"
+    [min]="min"
+    [max]="max"
+    [step]="step"
+    [value]="value[0]"
+    (input)="onInputChange($event)"
+  />
+
+  <!-- Botão / Thumb -->
+  <div
+    class="block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors pointer-events-none"
+    [style.left]="rangeWidth"
+    style="position: absolute; transform: translateX(-50%);"
+  ></div>
+</div>

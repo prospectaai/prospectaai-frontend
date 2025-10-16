@@ -17,7 +17,7 @@ type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
   styleUrl: './button.component.css'
 })
 export class ButtonComponent {
-  /** Variante de estilo (equivalente ao `variant` no React) */
+  /** Variante de estilo */
   @Input() variant:
     | 'default'
     | 'destructive'
