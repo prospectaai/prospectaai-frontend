@@ -1,9 +1,10 @@
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'ui-slider',
-  imports: [],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './slider.component.html',
   styleUrl: './slider.component.css',
   providers: [

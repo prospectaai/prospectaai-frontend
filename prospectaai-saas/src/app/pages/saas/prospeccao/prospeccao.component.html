@@ -20,26 +20,26 @@
         </p>
 
         <!-- Localização -->
-        <div class="space-y-2">
+        <div class="space-y-2" [formGroup]="prospeccaoForm">
           <ui-label className="flex items-center gap-2 mb-4">
             <lucide-icon name="map-pin" class="h-4 w-4"></lucide-icon>
             Localização
           </ui-label>
           <ui-input
-            [(ngModel)]="location"
+            formControlName="location"
             placeholder="Ex: São Paulo, SP"
             className="bg-background/50"
           ></ui-input>
         </div>
 
         <!-- Raio de Busca -->
-        <div class="space-y-4">
+        <div class="space-y-4" [formGroup]="prospeccaoForm">
           <ui-label className="flex items-center justify-between mb-4">
             <span>Raio de Busca</span>
             <span class="text-primary font-semibold">{{ searchRadius }} km</span>
           </ui-label>
           <ui-slider
-            [(ngModel)]="searchRadius"
+            formControlName="searchRadius"
             [min]="1"
             [max]="50"
             [step]="1"
@@ -47,23 +47,23 @@
         </div>
 
         <!-- Tipo de Negócio -->
-        <div class="space-y-2">
+        <div class="space-y-2" [formGroup]="prospeccaoForm">
           <ui-label className="flex items-center gap-2 mb-4">
             <lucide-icon name="building-2" class="h-4 w-4"></lucide-icon>
             Tipo de Negócio / Segmento
           </ui-label>
           <ui-input
-            [(ngModel)]="businessType"
+            formControlName="businessType"
             placeholder="Ex: Restaurantes, Academias, Clínicas"
             className="bg-background/50"
           ></ui-input>
         </div>
 
         <!-- Porte da Empresa -->
-        <div class="space-y-2">
+        <div class="space-y-2" [formGroup]="prospeccaoForm">
           <ui-label className="mb-4">Porte da Empresa</ui-label>
           <ui-select
-            [(value)]="companySize"
+            formControlName="companySize"
             [options]="[
               'Todos os portes',
               'Pequeno (1-10 funcionários)',

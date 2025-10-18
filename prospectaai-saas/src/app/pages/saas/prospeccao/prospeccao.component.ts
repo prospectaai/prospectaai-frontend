@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { CardComponent } from '../../../components/ui/card/card.component';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
@@ -14,7 +14,7 @@ import { SliderComponent } from '../../../components/ui/slider/slider.component'
   selector: 'app-prospeccao',
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     LucideAngularModule,
     CardComponent,
     ButtonComponent,
@@ -27,13 +27,25 @@ import { SliderComponent } from '../../../components/ui/slider/slider.component'
   templateUrl: './prospeccao.component.html',
   styleUrl: './prospeccao.component.css'
 })
-export class ProspeccaoComponent {
-  searchRadius = 10;
-  companySize = '';
-  location = '';
-  businessType = '';
-
+export class ProspeccaoComponent implements OnInit {
+  prospeccaoForm!: FormGroup;
   toastVisible = false;
+  
+  constructor(private fb: FormBuilder) {}
+  
+  ngOnInit(): void {
+    this.prospeccaoForm = this.fb.group({
+      location: [''],
+      searchRadius: [10],
+      businessType: [''],
+      companySize: ['Todos os portes']
+    });
+  }
+
+  get location() { return this.prospeccaoForm.get('location')?.value; }
+  get searchRadius() { return this.prospeccaoForm.get('searchRadius')?.value; }
+  get businessType() { return this.prospeccaoForm.get('businessType')?.value; }
+  get companySize() { return this.prospeccaoForm.get('companySize')?.value; }
 
   handleSearch() {
     this.toastVisible = true;

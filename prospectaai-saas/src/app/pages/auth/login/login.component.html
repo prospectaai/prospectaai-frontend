@@ -29,12 +29,12 @@
 
           <!-- Login -->
           <ui-tabs-content value="login" class="space-y-4">
-            <form (submit)="handleLogin($event)" class="space-y-4">
+            <form [formGroup]="loginForm" (submit)="handleLogin($event)" class="space-y-4">
               <div class="space-y-2">
                 <ui-label for="login-email">Email</ui-label>
                 <div class="relative">
                   <i-lucide name="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
-                  <ui-input id="login-email" type="email" placeholder="seu@email.com" className="pl-14" required />
+                  <ui-input id="login-email" type="email" placeholder="seu@email.com" className="pl-14" formControlName="email" />
                 </div>
               </div>
 
@@ -47,7 +47,7 @@
                 </div>
                 <div class="relative">
                   <i-lucide name="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
-                  <ui-input id="login-password" type="password" placeholder="••••••••" className="pl-14" required />
+                  <ui-input id="login-password" type="password" placeholder="••••••••" className="pl-14" formControlName="password" />
                 </div>
               </div>
 

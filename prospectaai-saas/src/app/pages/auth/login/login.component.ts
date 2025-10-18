@@ -1,5 +1,5 @@
-import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CardComponent } from "../../../components/ui/card/card.component";
 import { LucideAngularModule } from "lucide-angular";
@@ -19,7 +19,7 @@ import { ButtonComponent } from "../../../components/ui/button/button.component"
   selector: 'page-login',
   imports: [
     RouterLink,
-    FormsModule,
+    ReactiveFormsModule,
     CardComponent,
     LucideAngularModule,
     CardHeaderComponent,
@@ -37,29 +37,51 @@ import { ButtonComponent } from "../../../components/ui/button/button.component"
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginPageComponent {
+export class LoginPageComponent implements OnInit {
   isLoading = signal(false);
+  loginForm!: FormGroup;
+  signupForm!: FormGroup;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private fb: FormBuilder) {}
+
+  ngOnInit(): void {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]]
+    });
+
+    this.signupForm = this.fb.group({
+      name: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
 
   async handleLogin(event: Event) {
     event.preventDefault();
+    if (this.loginForm.invalid) return;
+    
     this.isLoading.set(true);
     // TODO: lógica real de login
+    console.log('Login iniciado', this.loginForm.value);
 
     // comportamento temporário:
-    await new Promise((res) => setTimeout(res, 1000));
-    this.isLoading.set(false);
-
-    // redirecionar para o dashboard
-    this.router.navigate(["/saas/dashboard"]);
+    setTimeout(() => {
+      console.log('Redirecionando para dashboard');
+      this.router.navigate(['/saas/dashboard']);
+    }, 1500);
   }
 
   async handleSignup(event: Event) {
     event.preventDefault();
+    if (this.signupForm.invalid) return;
+    
     this.isLoading.set(true);
     // TODO: lógica real de cadastro
-    await new Promise((res) => setTimeout(res, 1000));
-    this.isLoading.set(false);
+
+    // comportamento temporário:
+    setTimeout(() => {
+      this.router.navigate(['/saas/dashboard']);
+    }, 1500);
   }
 }
