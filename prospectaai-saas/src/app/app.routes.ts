@@ -3,6 +3,7 @@ import { LandingPageComponent } from './pages/public/landing-page/landing-page.c
 import { LoginPageComponent } from './pages/auth/login/login.component';
 import { DashboardPageComponent } from './pages/saas/dashboard/dashboard.component';
 import { ProspeccaoComponent } from './pages/saas/prospeccao/prospeccao.component';
+import { ResultadosComponent } from './pages/saas/resultados/resultados.component';
 
 export const routes: Routes = [
   // Rotas de páginas publicas do app
@@ -12,7 +13,8 @@ export const routes: Routes = [
     path: 'saas',
     children: [
       { path: 'dashboard', component: DashboardPageComponent },
-      { path: 'prospect', component: ProspeccaoComponent }
+      { path: 'prospect', component: ProspeccaoComponent },
+      { path: 'results', component: ResultadosComponent }
     ]
   }
 ];

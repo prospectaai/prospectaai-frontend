@@ -108,8 +108,14 @@
 
         <!-- Social Buttons -->
         <div class="grid grid-flow-col gap-1">
-          <ui-button className="w-full" variant="outline" type="button" [disabled]="isLoading()">Google</ui-button>
-          <ui-button className="w-full" variant="outline" type="button" [disabled]="isLoading()">GitHub</ui-button>
+          <ui-button className="w-full" variant="outline" type="button" [disabled]="isLoading()">
+            <i-lucide name="github" class="h-4 w-4"></i-lucide>
+            Google
+          </ui-button>
+          <ui-button className="w-full" variant="outline" type="button" [disabled]="isLoading()">
+            <i-lucide name="github" class="h-4 w-4"></i-lucide>
+            GitHub
+          </ui-button>
         </div>
       </ui-card-content>
     </ui-card>
