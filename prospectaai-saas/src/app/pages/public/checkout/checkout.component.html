@@ -1,0 +1,188 @@
+<div class="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+  <div class="w-full max-w-4xl">
+    
+    <!-- Logo -->
+    <a routerLink="/" class="flex items-center justify-center gap-2 mb-8 group">
+      <div class="p-2 rounded-xl bg-primary/10 backdrop-blur-glass border border-primary/20 group-hover:bg-primary/20 transition-all">
+        <i-lucide name="target" class="w-6 h-6 text-primary"></i-lucide>
+      </div>
+      <span class="text-2xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+        PropectaAI
+      </span>
+    </a>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Plan Selection -->
+      <div class="rounded-lg border bg-card/80 text-card-foreground shadow-sm backdrop-blur-glass border-border/50 shadow-glass-lg p-6">
+        <div class="flex flex-col space-y-1.5">
+          <h3 class="text-xl font-semibold leading-none tracking-tight">Escolha seu Plano</h3>
+          <p class="text-sm text-muted-foreground">Selecione o plano que melhor atende suas necessidades</p>
+        </div>
+        
+        <div class="p-6 pt-0 space-y-4">
+          <!-- Monthly Plan -->
+          <div 
+            class="p-4 rounded-lg border-2 cursor-pointer transition-all"
+            [ngClass]="{
+              'border-primary bg-primary/5': selectedPlan() === 'monthly',
+              'border-border hover:border-primary/50': selectedPlan() !== 'monthly'
+            }"
+            (click)="selectPlan('monthly')"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold">{{ plans.monthly.name }}</h3>
+              <span class="text-2xl font-bold text-primary">
+                {{ formatPrice(plans.monthly.price) }}
+              </span>
+            </div>
+            <p class="text-sm text-muted-foreground mb-3">
+              {{ plans.monthly.description }}
+            </p>
+            <ul class="space-y-1">
+              @for (feature of plans.monthly.features; track feature) {
+                <li class="flex items-center text-sm text-muted-foreground">
+                  <i-lucide name="check" class="w-4 h-4 text-green-500 mr-2"></i-lucide>
+                  {{ feature }}
+                </li>
+              }
+            </ul>
+          </div>
+
+          <!-- Annual Plan -->
+          <div 
+            class="p-4 rounded-lg border-2 cursor-pointer transition-all relative"
+            [ngClass]="{
+              'border-primary bg-primary/5': selectedPlan() === 'annual',
+              'border-border hover:border-primary/50': selectedPlan() !== 'annual'
+            }"
+            (click)="selectPlan('annual')"
+          >
+            <div class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+              Economize 17%
+            </div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold">{{ plans.annual.name }}</h3>
+              <div class="text-right">
+                <span class="text-lg text-muted-foreground line-through">
+                  {{ formatPrice(plans.annual.price) }}
+                </span>
+                <span class="text-2xl font-bold text-primary block">
+                  {{ formatPrice(plans.annual.price * 0.83) }}
+                </span>
+              </div>
+            </div>
+            <p class="text-sm text-muted-foreground mb-3">
+              {{ plans.annual.description }}
+            </p>
+            <ul class="space-y-1">
+              @for (feature of plans.annual.features; track feature) {
+                <li class="flex items-center text-sm text-muted-foreground">
+                  <i-lucide name="check" class="w-4 h-4 text-green-500 mr-2"></i-lucide>
+                  {{ feature }}
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Form -->
+      <div class="rounded-lg border bg-card/80 text-card-foreground shadow-sm backdrop-blur-glass border-border/50 shadow-glass-lg p-6">
+        <div class="flex flex-col space-y-1.5">
+          <h3 class="text-xl font-semibold leading-none tracking-tight">Dados de Pagamento</h3>
+          <p class="text-sm text-muted-foreground">Preencha os dados do seu cartão de crédito</p>
+        </div>
+        
+        <div class="p-6 pt-0">
+          <form [formGroup]="checkoutForm" (submit)="handlePayment($event)" class="space-y-4">
+            <div class="space-y-2">
+              <label for="cardNumber" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Número do Cartão</label>
+              <div class="relative">
+                <i-lucide name="credit-card" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
+                <input 
+                  id="cardNumber" 
+                  type="text" 
+                  placeholder="1234 5678 9012 3456" 
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-14"
+                  formControlName="cardNumber"
+                  maxlength="16"
+                />
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label for="cardName" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Nome no Cartão</label>
+              <div class="relative">
+                <i-lucide name="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
+                <input 
+                  id="cardName" 
+                  type="text" 
+                  placeholder="Nome completo" 
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-14"
+                  formControlName="cardName"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label for="cardExpiry" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Validade</label>
+                <input 
+                  id="cardExpiry" 
+                  type="text" 
+                  placeholder="MM/AA" 
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  formControlName="cardExpiry"
+                  maxlength="5"
+                />
+              </div>
+              <div class="space-y-2">
+                <label for="cardCvv" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">CVV</label>
+                <input 
+                  id="cardCvv" 
+                  type="text" 
+                  placeholder="123" 
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  formControlName="cardCvv"
+                  maxlength="4"
+                />
+              </div>
+            </div>
+
+            <div class="p-4 bg-primary/5 rounded-lg border border-primary/20">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium">Total a pagar:</span>
+                <span class="text-lg font-bold text-primary">
+                  {{ formatPrice(selectedPlan() === 'monthly' ? plans.monthly.price : plans.annual.price * 0.83) }}
+                </span>
+              </div>
+            </div>
+
+            <button 
+              type="submit" 
+              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+              [disabled]="isLoading()"
+            >
+              @if (isLoading()) {
+                <i-lucide name="loader-2" class="w-4 h-4 animate-spin mr-2"></i-lucide>
+                Processando...
+              } @else {
+                <i-lucide name="credit-card" class="w-4 h-4 mr-2"></i-lucide>
+                Finalizar Pagamento
+              }
+            </button>
+          </form>
+
+          <div class="mt-4 text-center">
+            <p class="text-xs text-muted-foreground">
+              Ao clicar em "Finalizar Pagamento", você concorda com nossos 
+              <a href="#" class="text-primary hover:text-primary/80 transition-colors">Termos de Serviço</a> 
+              e 
+              <a href="#" class="text-primary hover:text-primary/80 transition-colors">Política de Privacidade</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -21,6 +21,13 @@
       </ui-card-header>
 
       <ui-card-content>
+        <!-- Error Message -->
+        @if (errorMessage()) {
+          <div class="mb-4 p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg">
+            {{ errorMessage() }}
+          </div>
+        }
+
         <ui-tabs defaultValue="login" class="w-full">
           <ui-tabs-list class="grid w-full mb-6">
             <ui-tabs-trigger class="w-full" value="login">Login</ui-tabs-trigger>
@@ -59,12 +66,12 @@
 
           <!-- Signup -->
           <ui-tabs-content value="signup" class="space-y-4">
-            <form (submit)="handleSignup($event)" class="space-y-4">
+            <form [formGroup]="signupForm" (submit)="handleSignup($event)" class="space-y-4">
               <div class="space-y-2">
                 <ui-label for="signup-name">Nome</ui-label>
                 <div class="relative">
                   <i-lucide name="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
-                  <ui-input id="signup-name" type="text" placeholder="Seu nome" className="pl-14" required />
+                  <ui-input id="signup-name" type="text" placeholder="Seu nome" className="pl-14" formControlName="displayName" />
                 </div>
               </div>
 
@@ -72,7 +79,7 @@
                 <ui-label for="signup-email">Email</ui-label>
                 <div class="relative">
                   <i-lucide name="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
-                  <ui-input id="signup-email" type="email" placeholder="seu@email.com" className="pl-14" required />
+                  <ui-input id="signup-email" type="email" placeholder="seu@email.com" className="pl-14" formControlName="email" />
                 </div>
               </div>
 
@@ -80,7 +87,7 @@
                 <ui-label for="signup-password">Senha</ui-label>
                 <div class="relative">
                   <i-lucide name="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
-                  <ui-input id="signup-password" type="password" placeholder="••••••••" className="pl-14" required />
+                  <ui-input id="signup-password" type="password" placeholder="••••••••" className="pl-14" formControlName="passwordHash" />
                 </div>
               </div>
 
@@ -108,11 +115,11 @@
 
         <!-- Social Buttons -->
         <div class="grid grid-flow-col gap-1">
-          <ui-button className="w-full" variant="outline" type="button" [disabled]="isLoading()">
-            <i-lucide name="github" class="h-4 w-4"></i-lucide>
+          <ui-button className="w-full" variant="outline" type="button" [disabled]="isLoading()" (click)="handleOAuthLogin('google')">
+            <i-lucide name="chrome" class="h-4 w-4"></i-lucide>
             Google
           </ui-button>
-          <ui-button className="w-full" variant="outline" type="button" [disabled]="isLoading()">
+          <ui-button className="w-full" variant="outline" type="button" [disabled]="isLoading()" (click)="handleOAuthLogin('github')">
             <i-lucide name="github" class="h-4 w-4"></i-lucide>
             GitHub
           </ui-button>
@@ -128,3 +135,15 @@
     </p>
   </div>
 </div>
+
+<!-- Modal de Confirmação de Código -->
+<ui-confirmation-modal
+  [isOpen]="showConfirmationModal()"
+  [email]="confirmationEmail()"
+  (confirm)="handleConfirmCode($event)"
+  (resend)="handleResendCode()"
+  (close)="handleCloseConfirmationModal()">
+</ui-confirmation-modal>
+
+<!-- Container de Toasts -->
+<app-toast-container></app-toast-container>

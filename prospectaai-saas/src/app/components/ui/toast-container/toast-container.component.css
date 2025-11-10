@@ -1,0 +1,38 @@
+/* Animações para os toasts */
+@keyframes slide-in-from-right-2 {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-0 {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation: slide-in-from-right-2 0.3s ease-out, fade-in-0 0.3s ease-out;
+}
+
+/* Estilos adicionais para melhor aparência */
+.fixed.top-4.right-4 {
+  max-width: 320px;
+  z-index: 9999;
+}
+
+@media (max-width: 640px) {
+  .fixed.top-4.right-4 {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+  }
+}

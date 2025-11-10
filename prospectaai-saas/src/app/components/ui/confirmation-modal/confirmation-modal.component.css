@@ -1,0 +1,23 @@
+/* Estilos específicos para o modal de confirmação */
+input[type="text"][pattern="[0-9]*"] {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5em;
+}
+
+input[type="text"][pattern="[0-9]*"]::placeholder {
+  letter-spacing: normal;
+}
+
+/* Animação de spin para o loader */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
