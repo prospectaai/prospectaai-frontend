@@ -6,6 +6,9 @@ import { BadgeComponent } from "../../../components/ui/badge/badge.component";
 import { CardComponent } from "../../../components/ui/card/card.component";
 import { CardContentComponent } from "../../../components/ui/card-content/card-content.component";
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../shared/services/auth.service';
+import { Observable } from 'rxjs';
+import { ThemeToggleComponent } from '../../../components/ui/theme-toggle/theme-toggle.component';
 
 
 @Component({
@@ -17,12 +20,18 @@ import { RouterLink } from '@angular/router';
     BadgeComponent,
     CardComponent,
     CardContentComponent,
-    RouterLink
-],
+    RouterLink,
+    ThemeToggleComponent
+  ],
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.css'
 })
 export class LandingPageComponent {
+  isAuthenticated$!: Observable<boolean>;
+
+  constructor(private authService: AuthService) {
+    this.isAuthenticated$ = this.authService.isAuthenticated$;
+  }
 
  features = [
     {

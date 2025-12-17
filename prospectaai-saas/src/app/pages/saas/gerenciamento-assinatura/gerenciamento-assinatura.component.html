@@ -1,0 +1,414 @@
+<layout-saas-main>
+  <div class="max-w-5xl mx-auto space-y-8 animate-fade-in">
+    <!-- Header da página -->
+    <div class="relative overflow-hidden rounded-2xl gradient-hero p-8">
+      <div class="relative z-10 flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <button
+              (click)="goBack()"
+              class="p-2 rounded-md hover:bg-white/10 transition-all duration-200 hover:scale-105"
+            >
+              <i-lucide name="ArrowLeft" class="w-5 h-5 text-white"></i-lucide>
+            </button>
+            <h2 class="text-3xl font-bold text-white">Gerenciamento de Assinatura</h2>
+          </div>
+          <p class="text-white/90 mt-2 text-lg">Gerencie seu plano, pagamentos e cancelamento.</p>
+        </div>
+      </div>
+      <div class="absolute right-0 top-0 h-full w-1/3 opacity-20">
+        <div class="h-full w-full bg-gradient-to-l from-white/30 to-transparent"></div>
+      </div>
+    </div>
+
+    <!-- Informações principais da assinatura -->
+    <ui-card class="border-0 glass-effect">
+      <ui-card-header>
+        <div class="flex items-center justify-between">
+          <div>
+            <ui-card-title class="flex items-center gap-2 text-xl">
+              <div class="p-2 rounded-lg bg-primary/10">
+                <i-lucide name="CreditCard" class="w-5 h-5 text-primary"></i-lucide>
+              </div>
+              Plano Atual
+            </ui-card-title>
+            <ui-card-description class="mt-1">Detalhes da sua assinatura</ui-card-description>
+          </div>
+          <ui-badge
+            [variant]="subscriptionActive() ? 'default' : 'secondary'"
+            size="md"
+            className="shadow-sm"
+          >
+            <i-lucide
+              [name]="subscriptionActive() ? 'CheckCircle' : 'XCircle'"
+              class="w-3 h-3 mr-1"
+            ></i-lucide>
+            {{ subscriptionStatus() }}
+          </ui-badge>
+        </div>
+      </ui-card-header>
+      <ui-card-content class="space-y-6">
+        <!-- Grid de informações -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="rounded-xl border bg-card/50 p-5 hover:bg-card transition-all duration-200 group">
+            <div class="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide flex items-center gap-1">
+              <i-lucide name="Package" class="w-3 h-3 opacity-70"></i-lucide>
+              <span>Plano</span>
+            </div>
+            <div class="text-xl font-bold flex items-center gap-2 group-hover:text-primary transition-colors">
+              <div class="p-1.5 rounded-md bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <i-lucide name="Package" class="w-4 h-4 text-primary"></i-lucide>
+              </div>
+              {{ subscriptionPlan() || '-' }}
+            </div>
+          </div>
+
+          <div class="rounded-xl border bg-card/50 p-5 hover:bg-card transition-all duration-200 group">
+            <div class="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide flex items-center gap-1">
+              <i-lucide name="DollarSign" class="w-3 h-3 opacity-70"></i-lucide>
+              <span>Valor</span>
+            </div>
+            <div class="text-xl font-bold flex items-center gap-2 group-hover:text-primary transition-colors">
+              <div class="p-1.5 rounded-md bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <i-lucide name="DollarSign" class="w-4 h-4 text-primary"></i-lucide>
+              </div>
+              {{ subscriptionValue() || '-' }}
+            </div>
+          </div>
+
+          <div class="rounded-xl border bg-card/50 p-5 hover:bg-card transition-all duration-200 group">
+            <div class="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide flex items-center gap-1">
+              <i-lucide name="Calendar" class="w-3 h-3 opacity-70"></i-lucide>
+              <span>Próxima Renovação</span>
+            </div>
+            <div class="text-xl font-bold flex items-center gap-2 group-hover:text-primary transition-colors">
+              <div class="p-1.5 rounded-md bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <i-lucide name="Calendar" class="w-4 h-4 text-primary"></i-lucide>
+              </div>
+              {{ renewalDate() || '-' }}
+            </div>
+          </div>
+
+          <div class="rounded-xl border bg-card/50 p-5 hover:bg-card transition-all duration-200 group">
+            <div class="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide flex items-center gap-1">
+              <i-lucide name="Clock" class="w-3 h-3 opacity-70"></i-lucide>
+              <span>Data de Início</span>
+            </div>
+            <div class="text-xl font-bold flex items-center gap-2 group-hover:text-primary transition-colors">
+              <div class="p-1.5 rounded-md bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <i-lucide name="Clock" class="w-4 h-4 text-primary"></i-lucide>
+              </div>
+              {{ subscriptionStartDate() || '-' }}
+            </div>
+          </div>
+
+          <div class="rounded-xl border bg-card/50 p-5 hover:bg-card transition-all duration-200 group">
+            <div class="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide flex items-center gap-1">
+              <i-lucide name="Mail" class="w-3 h-3 opacity-70"></i-lucide>
+              <span>Email de Cobrança</span>
+            </div>
+            <div class="text-xl font-bold flex items-center gap-2 group-hover:text-primary transition-colors">
+              <div class="p-1.5 rounded-md bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <i-lucide name="Mail" class="w-4 h-4 text-primary"></i-lucide>
+              </div>
+              <span class="truncate">{{ billingEmail() || '-' }}</span>
+            </div>
+          </div>
+
+          <div class="rounded-xl border bg-card/50 p-5 hover:bg-card transition-all duration-200 group">
+            <div class="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide flex items-center gap-1">
+              <i-lucide name="Zap" class="w-3 h-3 opacity-70"></i-lucide>
+              <span>Cobrança Automática</span>
+            </div>
+            <div class="text-xl font-bold flex items-center gap-2">
+              <div
+                class="p-1.5 rounded-md transition-colors"
+                [ngClass]="{
+                  'bg-green-500/10': autoBilling(),
+                  'bg-red-500/10': !autoBilling(),
+                  'group-hover:bg-green-500/20': autoBilling(),
+                  'group-hover:bg-red-500/20': !autoBilling()
+                }"
+              >
+                <i-lucide
+                  [name]="autoBilling() ? 'CheckCircle' : 'XCircle'"
+                  class="w-4 h-4"
+                  [class.text-green-600]="autoBilling()"
+                  [class.text-red-600]="!autoBilling()">
+                </i-lucide>
+              </div>
+              <span [class.text-green-600]="autoBilling()" [class.text-red-600]="!autoBilling()">
+                {{ autoBilling() ? 'Sim' : 'Não' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerta de cancelamento pendente -->
+        <div
+          *ngIf="cancelAtPeriodEnd()"
+          class="rounded-xl border border-yellow-500/50 bg-gradient-to-r from-yellow-500/10 to-yellow-500/5 p-5 flex items-start gap-4 shadow-md"
+        >
+          <div class="p-2 rounded-lg bg-yellow-500/20 flex-shrink-0">
+            <i-lucide name="AlertTriangle" class="w-5 h-5 text-yellow-600"></i-lucide>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-yellow-900 dark:text-yellow-200 mb-1">
+              Cancelamento agendado
+            </p>
+            <p class="text-xs text-yellow-700 dark:text-yellow-300 leading-relaxed">
+              Sua assinatura será cancelada em <span class="font-semibold">{{ renewalDate() }}</span>. Você continuará tendo acesso completo até essa data.
+            </p>
+          </div>
+        </div>
+      </ui-card-content>
+    </ui-card>
+
+    <!-- Ações -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Pagar próximo período -->
+      <ui-card class="border-0 glass-effect group relative overflow-hidden">
+        <!-- Background gradient decorativo -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl"></div>
+        <div class="relative z-10">
+          <ui-card-header>
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-4">
+                <div class="p-4 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 group-hover:from-primary/30 group-hover:via-primary/20 group-hover:to-primary/15 transition-all duration-300">
+                  <i-lucide name="Zap" class="w-8 h-8 text-primary"></i-lucide>
+                </div>
+                <div>
+                  <ui-card-title class="text-xl font-bold mb-1">Pagamento Antecipado</ui-card-title>
+                  <ui-badge variant="secondary" size="sm" className="mt-1">
+                    <i-lucide name="Clock" class="w-3 h-3 mr-1"></i-lucide>
+                    Próximo {{ subscriptionPlanType() === 'ANNUAL' ? 'ano' : 'mês' }}
+                  </ui-badge>
+                </div>
+              </div>
+            </div>
+          </ui-card-header>
+          <ui-card-content>
+            <div class="space-y-4">
+              <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                <i-lucide name="CheckCircle2" class="w-4 h-4 text-green-600"></i-lucide>
+                <span>Garanta continuidade sem interrupções</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                <i-lucide name="CheckCircle2" class="w-4 h-4 text-green-600"></i-lucide>
+                <span>Evite cobranças automáticas</span>
+              </div>
+              <div class="pt-2">
+                <ui-button
+                  [variant]="'default'"
+                  [disabled]="isProcessing() || !subscriptionActive() || cancelAtPeriodEnd()"
+                  (click)="payNextPeriod()"
+                  className="w-full transition-all duration-200 text-base py-6"
+                  size="lg"
+                >
+                  <i-lucide
+                    *ngIf="!isProcessing()"
+                    name="CreditCard"
+                    class="w-5 h-5 mr-2"
+                  ></i-lucide>
+                  <i-lucide
+                    *ngIf="isProcessing()"
+                    name="Loader2"
+                    class="w-5 h-5 mr-2 animate-spin"
+                  ></i-lucide>
+                  {{ isProcessing() ? 'Processando...' : 'Pagar Agora' }}
+                </ui-button>
+              </div>
+            </div>
+          </ui-card-content>
+        </div>
+      </ui-card>
+
+      <!-- Cancelar assinatura -->
+      <ui-card class="border-0 glass-effect group relative overflow-hidden">
+        <!-- Background gradient decorativo -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-destructive/10 to-transparent rounded-full blur-3xl"></div>
+        <div class="relative z-10">
+          <ui-card-header>
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-4">
+                <div class="p-4 rounded-2xl bg-gradient-to-br from-destructive/20 via-destructive/15 to-destructive/10 group-hover:from-destructive/30 group-hover:via-destructive/20 group-hover:to-destructive/15 transition-all duration-300">
+                  <i-lucide name="XCircle" class="w-8 h-8 text-destructive"></i-lucide>
+                </div>
+                <div>
+                  <ui-card-title class="text-xl font-bold mb-1">Cancelar Assinatura</ui-card-title>
+                  <ui-badge variant="outline" size="sm" className="mt-1 border-destructive/30 text-destructive">
+                    <i-lucide name="Calendar" class="w-3 h-3 mr-1"></i-lucide>
+                    Até {{ renewalDate() }}
+                  </ui-badge>
+                </div>
+              </div>
+            </div>
+          </ui-card-header>
+          <ui-card-content>
+            <div class="space-y-4">
+              <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                <i-lucide name="Info" class="w-4 h-4 text-amber-600"></i-lucide>
+                <span>Cancelamento no final do período</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                <i-lucide name="CheckCircle2" class="w-4 h-4 text-green-600"></i-lucide>
+                <span>Acesso mantido até {{ renewalDate() }}</span>
+              </div>
+              <div class="pt-2">
+                <ui-button
+                  [variant]="'destructive'"
+                  [disabled]="isProcessing() || !subscriptionActive() || cancelAtPeriodEnd()"
+                  (click)="openCancelModal()"
+                  className="w-full transition-all duration-200 text-base py-6"
+                  size="lg"
+                >
+                  <i-lucide name="XCircle" class="w-5 h-5 mr-2"></i-lucide>
+                  Cancelar Assinatura
+                </ui-button>
+              </div>
+            </div>
+          </ui-card-content>
+        </div>
+      </ui-card>
+    </div>
+
+    <!-- Informações adicionais -->
+    <ui-card class="border-0 glass-effect relative overflow-hidden">
+      <!-- Background decorativo -->
+      <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl"></div>
+      <div class="relative z-10">
+        <ui-card-header>
+          <div class="flex items-center gap-3 mb-6">
+            <div class="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10">
+              <i-lucide name="Info" class="w-6 h-6 text-primary"></i-lucide>
+            </div>
+            <div>
+              <ui-card-title class="text-xl font-bold">Informações Importantes</ui-card-title>
+              <ui-card-description class="mt-1">Saiba mais sobre sua assinatura</ui-card-description>
+            </div>
+          </div>
+        </ui-card-header>
+        <ui-card-content>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Card 1 -->
+            <div class="group relative p-5 rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:border-primary/40 hover:from-primary/10 transition-all duration-300">
+              <div class="flex items-start gap-4">
+                <div class="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                  <i-lucide name="CreditCard" class="w-6 h-6 text-primary"></i-lucide>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-foreground mb-2">Cobrança Automática</h4>
+                  <p class="text-sm text-muted-foreground leading-relaxed">
+                    A cobrança é feita automaticamente no cartão de crédito cadastrado.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="group relative p-5 rounded-xl border-2 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent hover:border-amber-500/40 hover:from-amber-500/10 transition-all duration-300">
+              <div class="flex items-start gap-4">
+                <div class="p-3 rounded-lg bg-amber-500/10 group-hover:bg-amber-500/20 transition-colors flex-shrink-0">
+                  <i-lucide name="Clock" class="w-6 h-6 text-amber-600"></i-lucide>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-foreground mb-2">Cancelamento Gradual</h4>
+                  <p class="text-sm text-muted-foreground leading-relaxed">
+                    O cancelamento não é imediato. Você continuará tendo acesso até o final do período pago.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="group relative p-5 rounded-xl border-2 border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent hover:border-green-500/40 hover:from-green-500/10 transition-all duration-300">
+              <div class="flex items-start gap-4">
+                <div class="p-3 rounded-lg bg-green-500/10 group-hover:bg-green-500/20 transition-colors flex-shrink-0">
+                  <i-lucide name="RotateCcw" class="w-6 h-6 text-green-600"></i-lucide>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-foreground mb-2">Reativação Disponível</h4>
+                  <p class="text-sm text-muted-foreground leading-relaxed">
+                    Após o cancelamento, você poderá reativar sua assinatura a qualquer momento.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="group relative p-5 rounded-xl border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent hover:border-blue-500/40 hover:from-blue-500/10 transition-all duration-300">
+              <div class="flex items-start gap-4">
+                <div class="p-3 rounded-lg bg-blue-500/10 group-hover:bg-blue-500/20 transition-colors flex-shrink-0">
+                  <i-lucide name="Headphones" class="w-6 h-6 text-blue-600"></i-lucide>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-foreground mb-2">Suporte Disponível</h4>
+                  <p class="text-sm text-muted-foreground leading-relaxed">
+                    Para alterar o método de pagamento, entre em contato com o suporte.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ui-card-content>
+      </div>
+    </ui-card>
+  </div>
+
+  <!-- Modal de confirmação de cancelamento -->
+  <ui-modal
+    [isOpen]="showCancelModal()"
+    [title]="'Confirmar Cancelamento'"
+    [size]="'md'"
+    (close)="closeCancelModal()"
+  >
+    <div class="space-y-5">
+      <div class="flex items-center gap-4 p-4 rounded-xl bg-destructive/5 border border-destructive/20">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-destructive/20 to-destructive/10 flex items-center justify-center flex-shrink-0">
+          <i-lucide name="AlertTriangle" class="w-6 h-6 text-destructive"></i-lucide>
+        </div>
+        <div class="flex-1 pt-1">
+          <p class="text-base font-semibold text-foreground mb-2">
+            Tem certeza que deseja cancelar sua assinatura?
+          </p>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Sua assinatura será cancelada ao final do período atual (<span class="font-medium text-foreground">{{ renewalDate() }}</span>).
+            Você continuará tendo acesso completo até essa data. Após o cancelamento,
+            você poderá reativar sua assinatura a qualquer momento.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <ui-button
+          [variant]="'outline'"
+          [disabled]="isProcessing()"
+          (click)="closeCancelModal()"
+          className="flex-1 hover:bg-secondary transition-colors"
+        >
+          <i-lucide name="X" class="w-4 h-4 mr-2"></i-lucide>
+          Manter Assinatura
+        </ui-button>
+        <ui-button
+          [variant]="'destructive'"
+          [disabled]="isProcessing()"
+          (click)="confirmCancel()"
+          className="flex-1 transition-all duration-200"
+        >
+          <i-lucide
+            *ngIf="!isProcessing()"
+            name="XCircle"
+            class="w-4 h-4 mr-2"
+          ></i-lucide>
+          <i-lucide
+            *ngIf="isProcessing()"
+            name="Loader2"
+            class="w-4 h-4 mr-2 animate-spin"
+          ></i-lucide>
+          {{ isProcessing() ? 'Cancelando...' : 'Confirmar Cancelamento' }}
+        </ui-button>
+      </div>
+    </div>
+  </ui-modal>
+</layout-saas-main>
+

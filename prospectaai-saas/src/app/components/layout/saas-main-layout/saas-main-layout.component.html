@@ -20,9 +20,12 @@
       <button class="p-1 rounded-md hover:bg-muted/50">
         <i-lucide name="settings" class="w-5 h-5 text-muted-foreground"></i-lucide>
       </button>
-      <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-        <i-lucide name="user" class="w-4 h-4"></i-lucide>
-      </div>
+      <a routerLink="/saas/settings" class="flex items-center">
+        <div class="w-8 h-8 rounded-full overflow-hidden border border-border/50 bg-primary/10 flex items-center justify-center text-primary">
+          <img *ngIf="avatarUrl()" [src]="avatarUrl()" alt="avatar" class="w-full h-full object-cover" />
+          <span *ngIf="!avatarUrl()" class="text-xs font-semibold">{{ displayInitials() }}</span>
+        </div>
+      </a>
     </div>
   </header>
 

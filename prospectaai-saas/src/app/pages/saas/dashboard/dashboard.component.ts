@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { AuthService } from '../../../shared/services/auth.service';
 import { SaasMainLayoutComponent } from '../../../components/layout/saas-main-layout/saas-main-layout.component';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { CardComponent } from '../../../components/ui/card/card.component';
@@ -27,7 +28,12 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardPageComponent {
+export class DashboardPageComponent implements OnInit {
+  constructor(
+    private route: ActivatedRoute,
+    private authService: AuthService
+  ) {}
+
  stats = [
     {
       title: 'Empresas Prospectadas',
@@ -60,4 +66,21 @@ export class DashboardPageComponent {
     { id: 2, name: 'Academias no Rio de Janeiro', date: 'Ontem, 09:15', results: 32 },
     { id: 3, name: 'Clínicas em Belo Horizonte', date: '2 dias atrás', results: 28 },
   ];
+
+  ngOnInit(): void {
+    // Se foi aberto no popup, devolve o token ao opener e fecha (apenas no browser)
+    if (typeof window !== 'undefined' && window.opener) {
+      const token = this.route.snapshot.queryParams['token'] || this.authService.getToken();
+      const expiredAt = this.route.snapshot.queryParams['expiredAt'] || localStorage.getItem('token_expired_at') || '';
+
+      window.opener.postMessage({ type: 'oauth-result', token, expiredAt }, window.location.origin);
+      window.close();
+
+      // salvar o token no localStorage
+      if (token) {
+        this.authService.handleOAuthCallback(token, new Date(expiredAt), false);
+      }
+      return;
+    }
+  }
 }

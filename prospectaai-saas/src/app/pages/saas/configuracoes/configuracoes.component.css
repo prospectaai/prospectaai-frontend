@@ -1,0 +1,26 @@
+/* Estilos modernos para a página de Configurações */
+.gradient-hero {
+  background: linear-gradient(135deg, #0ea5e9 0%, #4f46e5 60%, #111827 100%);
+}
+
+.shadow-glass-xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+}
+
+.glass-effect {
+  backdrop-filter: saturate(180%) blur(8px);
+  background-color: rgba(17, 24, 39, 0.55);
+}
+
+.shadow-glass {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}

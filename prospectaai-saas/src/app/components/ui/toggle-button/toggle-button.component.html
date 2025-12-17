@@ -1,0 +1,4 @@
+<ui-button [variant]="active ? 'secondary' : 'outline'" [size]="size" className="gap-2" (onClick)="undefined">
+  <ng-content></ng-content>
+  <span class="text-xs">{{ active ? onLabel : offLabel }}</span>
+</ui-button>

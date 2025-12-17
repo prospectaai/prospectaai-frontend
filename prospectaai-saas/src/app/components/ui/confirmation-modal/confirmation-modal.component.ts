@@ -13,7 +13,6 @@ import { ButtonComponent } from '../button/button.component';
     ReactiveFormsModule,
     LucideAngularModule,
     ModalComponent,
-    ButtonComponent
   ],
   templateUrl: './confirmation-modal.component.html',
   styleUrl: './confirmation-modal.component.css'
@@ -38,7 +37,7 @@ export class ConfirmationModalComponent {
 
   onConfirm() {
     if (this.confirmationForm.invalid) return;
-    
+
     this.isLoading.set(true);
     const code = this.confirmationForm.get('code')?.value;
     this.confirm.emit(code);
@@ -46,14 +45,14 @@ export class ConfirmationModalComponent {
 
   onResend() {
     if (this.resendTimer() > 0) return;
-    
+
     this.resend.emit();
     this.startResendTimer();
   }
 
   startResendTimer() {
     this.resendTimer.set(20);
-    
+
     this.resendInterval = setInterval(() => {
       this.resendTimer.update(timer => {
         if (timer <= 1) {
@@ -68,6 +67,7 @@ export class ConfirmationModalComponent {
   onClose() {
     this.close.emit();
     this.confirmationForm.reset();
+    this.isLoading.set(false);
     this.clearTimer();
   }
 
@@ -80,5 +80,10 @@ export class ConfirmationModalComponent {
 
   getFormattedTimer(): string {
     return `${this.resendTimer()}s`;
+  }
+
+  // Permite que o componente pai controle o estado de loading
+  setLoading(loading: boolean): void {
+    this.isLoading.set(loading);
   }
 }

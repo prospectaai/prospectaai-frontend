@@ -11,7 +11,7 @@
           Automatize sua prospecção de empresas com inteligência artificial.
           Encontre leads qualificados em segundos.
         </p>
-        <a routerLink="/prospeccao">
+        <a routerLink="/saas/prospect">
           <ui-button size="lg" variant="secondary" className="gap-2 shadow-lg hover-lift">
             Iniciar Nova Prospecção
             <i-lucide name="ArrowRight" class="h-5 w-5"></i-lucide>
@@ -24,16 +24,19 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div *ngIf="stats.length > 0; else statsEmpty" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <ui-card
         *ngFor="let stat of stats; let i = index"
         class="glass-effect hover-lift border-0 shadow-glass"
       >
         <ui-card-header class="flex flex-row items-center justify-between pb-2">
-          <ui-card-title class="text-sm font-medium text-muted-foreground">
-            {{ stat.title }}
-          </ui-card-title>
-          <i-lucide [name]="stat.icon" class="h-5 w-5 text-primary"></i-lucide>
+          <div class="flex items-center gap-2">
+            <ui-card-title class="text-sm font-medium text-muted-foreground">
+              {{ stat.title }}
+            </ui-card-title>
+             <i-lucide [name]="stat.icon" class="h-5 w-5 text-primary"></i-lucide>
+          </div>
+
         </ui-card-header>
         <ui-card-content>
           <div class="text-3xl font-bold text-foreground">{{ stat.value }}</div>
@@ -42,6 +45,25 @@
       </ui-card>
     </div>
 
+    <ng-template #statsEmpty>
+      <ui-card class="glass-effect border-0 shadow-glass">
+        <ui-card-content>
+          <div class="py-12 flex flex-col items-center justify-center text-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <i-lucide name="BarChart3" class="w-6 h-6 text-primary"></i-lucide>
+            </div>
+            <p class="text-sm text-muted-foreground">Sem dados para exibir no momento.</p>
+            <a routerLink="/saas/prospect">
+              <ui-button class="gap-2">
+                Criar nova prospecção
+                <i-lucide name="ArrowRight" class="h-4 w-4"></i-lucide>
+              </ui-button>
+            </a>
+          </div>
+        </ui-card-content>
+      </ui-card>
+    </ng-template>
+
     <!-- Recent Searches -->
     <ui-card class="glass-effect border-0 shadow-glass">
       <ui-card-header>
@@ -49,7 +71,7 @@
         <ui-card-description>Suas últimas prospecções e resultados</ui-card-description>
       </ui-card-header>
       <ui-card-content>
-        <div class="space-y-4">
+        <div *ngIf="recentSearches.length > 0; else emptyState" class="space-y-4">
           <div
             *ngFor="let search of recentSearches"
             class="flex items-center justify-between p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
@@ -63,7 +85,7 @@
                 <p class="text-2xl font-bold text-primary">{{ search.results }}</p>
                 <p class="text-xs text-muted-foreground">resultados</p>
               </div>
-              <a routerLink="/resultados">
+              <a routerLink="/saas/results">
                 <ui-button variant="ghost" size="sm" class="gap-2">
                   Ver detalhes
                   <i-lucide name="ArrowRight" class="h-4 w-4"></i-lucide>
@@ -72,6 +94,20 @@
             </div>
           </div>
         </div>
+        <ng-template #emptyState>
+          <div class="py-12 flex flex-col items-center justify-center text-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <i-lucide name="Search" class="w-6 h-6 text-primary"></i-lucide>
+            </div>
+            <p class="text-sm text-muted-foreground">Nenhuma prospecção foi feita ainda.</p>
+            <a routerLink="/saas/prospect">
+              <ui-button class="gap-2">
+                Começar a prospectar
+                <i-lucide name="ArrowRight" class="h-4 w-4"></i-lucide>
+              </ui-button>
+            </a>
+          </div>
+        </ng-template>
       </ui-card-content>
     </ui-card>
 

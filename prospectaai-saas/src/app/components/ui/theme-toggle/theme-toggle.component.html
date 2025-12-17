@@ -1,0 +1,9 @@
+<ui-toggle-button
+  [active]="current() === 'dark'"
+  [onLabel]="'Escuro'"
+  [offLabel]="'Claro'"
+  [size]="'sm'"
+  (click)="toggle()"
+>
+  <i-lucide [name]="current() === 'dark' ? 'Moon' : 'Sun'" class="h-4 w-4"></i-lucide>
+</ui-toggle-button>

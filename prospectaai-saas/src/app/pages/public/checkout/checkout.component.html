@@ -1,6 +1,15 @@
+@if (isValidPrId() && !serverError()) {
+    <div class="w-full bg-amber-400 p-2 shadow-lg fixed top-0 left-0">
+      <p class="text-sm font-bold text-foreground text-center">Essa é uma versão de teste, o pagamento não é real.</p>
+    </div>
+  }
+
 <div class="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+  <div class="fixed top-4 right-4 z-50">
+    <ui-theme-toggle></ui-theme-toggle>
+  </div>
+  <!-- Container global já no AppComponent -->
   <div class="w-full max-w-4xl">
-    
     <!-- Logo -->
     <a routerLink="/" class="flex items-center justify-center gap-2 mb-8 group">
       <div class="p-2 rounded-xl bg-primary/10 backdrop-blur-glass border border-primary/20 group-hover:bg-primary/20 transition-all">
@@ -11,17 +20,26 @@
       </span>
     </a>
 
-    <div class="grid md:grid-cols-2 gap-8">
+    @if (isCheckingPrId()) {
+      <div class="rounded-lg border bg-card/80 text-card-foreground shadow-sm backdrop-blur-glass border-border/50 shadow-glass-lg p-8 max-w-xl mx-auto flex items-center gap-3">
+        <span class="inline-block w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin"></span>
+        <div>
+          <h3 class="text-lg font-semibold">Validando seu acesso...</h3>
+          <p class="text-sm text-muted-foreground">Aguarde enquanto confirmamos seu link.</p>
+        </div>
+      </div>
+    } @else if (isValidPrId() && !serverError()) {
+      <div class="grid md:grid-cols-2 gap-8">
       <!-- Plan Selection -->
       <div class="rounded-lg border bg-card/80 text-card-foreground shadow-sm backdrop-blur-glass border-border/50 shadow-glass-lg p-6">
         <div class="flex flex-col space-y-1.5">
           <h3 class="text-xl font-semibold leading-none tracking-tight">Escolha seu Plano</h3>
           <p class="text-sm text-muted-foreground">Selecione o plano que melhor atende suas necessidades</p>
         </div>
-        
+
         <div class="p-6 pt-0 space-y-4">
           <!-- Monthly Plan -->
-          <div 
+          <div
             class="p-4 rounded-lg border-2 cursor-pointer transition-all"
             [ngClass]="{
               'border-primary bg-primary/5': selectedPlan() === 'monthly',
@@ -49,7 +67,7 @@
           </div>
 
           <!-- Annual Plan -->
-          <div 
+          <div
             class="p-4 rounded-lg border-2 cursor-pointer transition-all relative"
             [ngClass]="{
               'border-primary bg-primary/5': selectedPlan() === 'annual',
@@ -92,17 +110,17 @@
           <h3 class="text-xl font-semibold leading-none tracking-tight">Dados de Pagamento</h3>
           <p class="text-sm text-muted-foreground">Preencha os dados do seu cartão de crédito</p>
         </div>
-        
+
         <div class="p-6 pt-0">
           <form [formGroup]="checkoutForm" (submit)="handlePayment($event)" class="space-y-4">
             <div class="space-y-2">
               <label for="cardNumber" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Número do Cartão</label>
               <div class="relative">
                 <i-lucide name="credit-card" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
-                <input 
-                  id="cardNumber" 
-                  type="text" 
-                  placeholder="1234 5678 9012 3456" 
+                <input
+                  id="cardNumber"
+                  type="text"
+                  placeholder="1234 5678 9012 3456"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-14"
                   formControlName="cardNumber"
                   maxlength="16"
@@ -114,10 +132,10 @@
               <label for="cardName" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Nome no Cartão</label>
               <div class="relative">
                 <i-lucide name="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
-                <input 
-                  id="cardName" 
-                  type="text" 
-                  placeholder="Nome completo" 
+                <input
+                  id="cardName"
+                  type="text"
+                  placeholder="Nome completo"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-14"
                   formControlName="cardName"
                 />
@@ -127,10 +145,10 @@
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-2">
                 <label for="cardExpiry" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Validade</label>
-                <input 
-                  id="cardExpiry" 
-                  type="text" 
-                  placeholder="MM/AA" 
+                <input
+                  id="cardExpiry"
+                  type="text"
+                  placeholder="MM/AA"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   formControlName="cardExpiry"
                   maxlength="5"
@@ -138,10 +156,10 @@
               </div>
               <div class="space-y-2">
                 <label for="cardCvv" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">CVV</label>
-                <input 
-                  id="cardCvv" 
-                  type="text" 
-                  placeholder="123" 
+                <input
+                  id="cardCvv"
+                  type="text"
+                  placeholder="123"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   formControlName="cardCvv"
                   maxlength="4"
@@ -158,31 +176,44 @@
               </div>
             </div>
 
-            <button 
-              type="submit" 
-              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
-              [disabled]="isLoading()"
+            <ui-button
+              type="submit"
+              [disabled]="isLoading() || checkoutForm.invalid"
+              className="w-full"
             >
               @if (isLoading()) {
-                <i-lucide name="loader-2" class="w-4 h-4 animate-spin mr-2"></i-lucide>
+                <span class="inline-block w-4 h-4 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin mr-2"></span>
                 Processando...
               } @else {
                 <i-lucide name="credit-card" class="w-4 h-4 mr-2"></i-lucide>
                 Finalizar Pagamento
               }
-            </button>
+            </ui-button>
           </form>
 
           <div class="mt-4 text-center">
             <p class="text-xs text-muted-foreground">
-              Ao clicar em "Finalizar Pagamento", você concorda com nossos 
-              <a href="#" class="text-primary hover:text-primary/80 transition-colors">Termos de Serviço</a> 
-              e 
+              Ao clicar em "Finalizar Pagamento", você concorda com nossos
+              <a href="#" class="text-primary hover:text-primary/80 transition-colors">Termos de Serviço</a>
+              e
               <a href="#" class="text-primary hover:text-primary/80 transition-colors">Política de Privacidade</a>.
             </p>
           </div>
         </div>
       </div>
     </div>
+    } @else {
+      <div class="rounded-lg border bg-card/80 text-card-foreground shadow-sm backdrop-blur-glass border-border/50 shadow-glass-lg p-8 max-w-xl mx-auto">
+        <div class="flex items-center gap-3 mb-4">
+          <h3 class="text-xl font-semibold text-red-700">Não foi possível continuar</h3>
+        </div>
+        <p class="text-sm text-muted-foreground mb-4">{{ errorMessage() }}</p>
+        <div class="flex items-center gap-3">
+          <a routerLink="/" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm text-white font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+            Voltar para a Home
+          </a>
+        </div>
+      </div>
+    }
   </div>
 </div>

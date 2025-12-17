@@ -1,29 +1,28 @@
 <div class="fixed top-4 right-4 z-50 space-y-2 w-80">
   <div
     *ngFor="let toast of toasts()"
-    class="p-4 rounded-lg border shadow-lg animate-in slide-in-from-right-2 fade-in-0"
-    [class]="getToastStyles(toast.type)"
+    class="p-4 rounded-lg border shadow-lg animate-in flex items-start gap-3"
+    [ngClass]="getToastStyles(toast.type)"
   >
-    <div class="flex items-start gap-3">
-      <i-lucide 
-        [name]="getToastIcon(toast.type)" 
-        class="w-5 h-5 mt-0.5 flex-shrink-0"
-      ></i-lucide>
-      
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold">{{ toast.title }}</p>
-        <p *ngIf="toast.message" class="text-sm mt-1 opacity-90">
-          {{ toast.message }}
-        </p>
-      </div>
-
-      <button
-        type="button"
-        class="p-1 rounded-md hover:bg-black/10 transition-colors flex-shrink-0"
-        (click)="dismissToast(toast.id)"
-      >
-        <i-lucide name="x" class="w-4 h-4"></i-lucide>
-      </button>
-    </div>
+  <div class="flex-shrink-0">
+    <i-lucide
+      [name]="getToastIcon(toast.type)"
+      class="w-5 h-5 mt-0.5"
+    ></i-lucide>
   </div>
+
+  <div class="flex-1 min-w-0">
+    <p class="text-sm font-semibold">{{ toast.title }}</p>
+    <p class="text-sm mt-1 opacity-90">
+      {{ toast.message }}
+    </p>
+  </div>
+
+  <button
+    type="button"
+    class="p-1 rounded-md hover:bg-black/10 transition-colors flex-shrink-0"
+    (click)="dismissToast(toast.id)"
+  >
+    <i-lucide name="X" class="w-4 h-4"></i-lucide>
+  </button>
 </div>

@@ -1,0 +1,124 @@
+<layout-saas-main>
+  <div class="max-w-5xl mx-auto space-y-8">
+    <!-- Header da página -->
+    <div class="relative overflow-hidden rounded-2xl gradient-hero p-8">
+      <div class="relative z-10">
+        <h2 class="text-3xl font-bold text-white">Configurações</h2>
+        <p class="text-white/90 mt-2">Gerencie sua conta, preferências e sessão.</p>
+      </div>
+      <div class="absolute right-0 top-0 h-full w-1/3 opacity-20">
+        <div class="h-full w-full bg-gradient-to-l from-white/30 to-transparent"></div>
+      </div>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Sessão: Conta -->
+      <ui-card class="border-0">
+        <ui-card-header>
+          <div class="flex items-center gap-2">
+            <i-lucide name="User" class="w-4 h-4"></i-lucide>
+            <ui-card-title>Conta</ui-card-title>
+          </div>
+          <ui-card-description>Informações básicas do perfil</ui-card-description>
+        </ui-card-header>
+        <ui-card-content class="space-y-4">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full overflow-hidden border border-border/50 bg-primary/10 flex items-center justify-center">
+              <img *ngIf="avatarUrl()" [src]="avatarUrl()" alt="avatar" class="w-full h-full object-cover" />
+              <i-lucide *ngIf="!avatarUrl()" name="User" class="w-6 h-6 text-primary"></i-lucide>
+            </div>
+
+          </div>
+        </ui-card-content>
+      </ui-card>
+
+      <!-- Sessão: Preferências -->
+      <ui-card class="border-0">
+        <ui-card-header>
+          <div class="flex items-center gap-2">
+            <i-lucide name="Settings" class="w-4 h-4"></i-lucide>
+            <ui-card-title>Preferências</ui-card-title>
+          </div>
+          <ui-card-description>Tema, idioma e notificações</ui-card-description>
+        </ui-card-header>
+        <ui-card-content class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm font-medium">Tema</div>
+              <div class="text-xs text-muted-foreground">Claro/Escuro</div>
+            </div>
+            <ui-theme-toggle></ui-theme-toggle>
+          </div>
+        </ui-card-content>
+      </ui-card>
+
+      <!-- Sessão: Sessão/Logout -->
+      <ui-card class="border-0 shadow-none">
+        <ui-card-header>
+          <div class="flex items-center gap-2">
+            <i-lucide name="Key" class="w-4 h-4"></i-lucide>
+            <ui-card-title>Sessão</ui-card-title>
+          </div>
+          <ui-card-description>Gerencie sua sessão atual</ui-card-description>
+        </ui-card-header>
+        <ui-card-content>
+          <div class="flex items-center justify-between gap-4">
+            <p class="text-sm text-muted-foreground">Encerrar a sessão atual no dispositivo.</p>
+            <ui-button [variant]="'destructive'" [disabled]="isProcessing" (click)="openLogoutModal()">
+              {{ isProcessing ? 'Saindo...' : 'Logout' }}
+            </ui-button>
+          </div>
+        </ui-card-content>
+      </ui-card>
+    </div>
+
+    <!-- Sessão: Assinatura -->
+    <ui-card class="border-0">
+      <ui-card-header>
+        <ui-card-title class="flex items-center gap-2">
+          <i-lucide name="CreditCard" class="w-4 h-4"></i-lucide>
+          Assinatura
+        </ui-card-title>
+        <ui-card-description>Detalhes do seu plano e ciclo de cobrança</ui-card-description>
+      </ui-card-header>
+      <ui-card-content>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="rounded-lg border bg-card p-4">
+            <div class="text-xs text-muted-foreground">Plano</div>
+            <div class="text-sm font-semibold">{{ subscriptionPlan() || '-' }}</div>
+          </div>
+          <div class="rounded-lg border bg-card p-4">
+            <div class="text-xs text-muted-foreground">Status</div>
+            <div class="text-sm font-semibold flex items-center gap-2">
+              <i-lucide name="Check" class="w-4 h-4 text-green-600"></i-lucide>
+              {{ subscriptionStatus() || '-' }}
+            </div>
+          </div>
+          <div class="rounded-lg border bg-card p-4">
+            <div class="text-xs text-muted-foreground">Renovação</div>
+            <div class="text-sm font-semibold flex items-center gap-2">
+              <i-lucide name="Calendar" class="w-4 h-4"></i-lucide>
+              {{ renewalDate() || '-' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex items-center gap-3 justify-between w-full">
+          <ui-button [variant]="'default'" (click)="manageSubscription()" className="hover-lift text-white">Gerenciar assinatura</ui-button>
+          <span class="text-xs text-muted-foreground">Cobrança vinculada a: {{ billingEmail() || '-' }}</span>
+        </div>
+      </ui-card-content>
+    </ui-card>
+  </div>
+</layout-saas-main>
+
+<ui-modal [isOpen]="showLogoutModal()" (close)="cancelLogout()" [title]="'Confirmar Logout'" [size]="'sm'">
+  <div class="p-4 space-y-4">
+    <p class="text-sm text-muted-foreground">Tem certeza que deseja sair da sua conta?</p>
+    <div class="flex justify-end gap-2">
+      <ui-button variant="ghost" type="button" (click)="cancelLogout()">Cancelar</ui-button>
+      <ui-button type="button" [variant]="'destructive'" [disabled]="isProcessing" (click)="logout()">Sair</ui-button>
+    </div>
+  </div>
+</ui-modal>

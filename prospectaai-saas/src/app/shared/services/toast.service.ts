@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, NgZone, signal } from '@angular/core';
 
 export interface ToastMessage {
   id: string;
@@ -16,24 +16,34 @@ export class ToastService {
   
   toasts$ = this.toasts.asReadonly();
 
+  constructor(private zone: NgZone) {}
+
   show(toast: Omit<ToastMessage, 'id'>) {
-    const id = this.generateId();
-    const newToast: ToastMessage = {
-      id,
-      duration: 4000,
-      ...toast
-    };
+    this.zone.run(() => {
+      const id = this.generateId();
+      const newToast: ToastMessage = {
+        id,
+        type: toast.type,
+        title: toast.title,
+        message: (typeof toast.message === 'string' && toast.message.trim().length > 0)
+          ? toast.message
+          : toast.title,
+        duration: toast.duration ?? 4000
+      };
 
-    this.toasts.update(toasts => [...toasts, newToast]);
+      this.toasts.update(toasts => [...toasts, newToast]);
 
-    // Auto remove after duration
-    setTimeout(() => {
-      this.remove(id);
-    }, newToast.duration);
+      // Auto remove after duration
+      setTimeout(() => {
+        this.remove(id);
+      }, newToast.duration);
+    });
   }
 
   remove(id: string) {
-    this.toasts.update(toasts => toasts.filter(t => t.id !== id));
+    this.zone.run(() => {
+      this.toasts.update(toasts => toasts.filter(t => t.id !== id));
+    });
   }
 
   success(title: string, message?: string) {

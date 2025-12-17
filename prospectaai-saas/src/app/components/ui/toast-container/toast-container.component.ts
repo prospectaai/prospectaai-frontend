@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -12,38 +12,47 @@ import { ToastService } from '../../../shared/services/toast.service';
 })
 export class ToastContainerComponent {
   private toastService = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
   
   toasts = this.toastService.toasts$;
+
+  // Ensure change detection runs immediately on signal updates
+  constructor() {
+    effect(() => {
+      // Read the signal to track dependency
+      void this.toasts();
+      // Mark for check to update view even under coalesced events
+      this.cdr.markForCheck();
+    });
+  }
 
   getToastIcon(type: string): string {
     switch (type) {
       case 'success':
-        return 'check-circle';
+        return 'Check';
       case 'error':
-        return 'x-circle';
+        return 'X';
       case 'warning':
-        return 'alert-triangle';
+        return 'AlertTriangle';
       case 'info':
-        return 'info';
+        return 'Info';
       default:
-        return 'info';
+        return 'Info';
     }
   }
 
   getToastStyles(type: string): string {
-    const baseStyles = 'flex items-start gap-3';
-    
     switch (type) {
       case 'success':
-        return `${baseStyles} bg-green-50 border-green-200 text-green-800`;
+        return 'bg-green-50 border-green-200 text-green-800';
       case 'error':
-        return `${baseStyles} bg-red-50 border-red-200 text-red-800`;
+        return 'bg-red-50 border-red-200 text-red-800';
       case 'warning':
-        return `${baseStyles} bg-yellow-50 border-yellow-200 text-yellow-800`;
+        return 'bg-yellow-50 border-yellow-200 text-yellow-800';
       case 'info':
-        return `${baseStyles} bg-blue-50 border-blue-200 text-blue-800`;
+        return 'bg-blue-50 border-blue-200 text-blue-800';
       default:
-        return `${baseStyles} bg-gray-50 border-gray-200 text-gray-800`;
+        return 'bg-gray-50 border-gray-200 text-gray-800';
     }
   }
 

@@ -23,8 +23,14 @@
       <ui-card-content>
         <!-- Error Message -->
         @if (errorMessage()) {
-          <div class="mb-4 p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg">
+          <div class="mb-4 p-3 text-sm text-red-500 bg-red-50/5 border border-red-200/20 rounded-lg">
             {{ errorMessage() }}
+          </div>
+        }
+
+        @if (goodbyeMessage()) {
+          <div class="mb-4 p-3 text-sm rounded-lg bg-primary/5 border border-primary/20 text-center text-primary">
+            {{ goodbyeMessage() }}
           </div>
         }
 
@@ -48,9 +54,6 @@
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
                   <ui-label for="login-password">Senha</ui-label>
-                  <button type="button" class="text-xs text-primary hover:text-primary/80 transition-colors">
-                    Esqueceu a senha?
-                  </button>
                 </div>
                 <div class="relative">
                   <i-lucide name="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
@@ -61,6 +64,9 @@
               <ui-button type="submit" className="mt-5 w-full text-white" [disabled]="isLoading()">
                 {{ isLoading() ? 'Entrando...' : 'Entrar' }}
               </ui-button>
+              <div class="mt-3 text-center">
+                <button type="button" class="text-sm text-primary hover:underline" (click)="openForgotPassword()">Esqueceu a senha?</button>
+              </div>
             </form>
           </ui-tabs-content>
 
@@ -145,5 +151,25 @@
   (close)="handleCloseConfirmationModal()">
 </ui-confirmation-modal>
 
-<!-- Container de Toasts -->
-<app-toast-container></app-toast-container>
+<!-- Container global já no AppComponent -->
+        <!-- Modal: Esqueceu a Senha -->
+        <ui-modal [isOpen]="showForgotPasswordModal()" (close)="closeForgotPassword()" [title]="'Recuperar senha'" [size]="'md'">
+          <div class="space-y-4 p-4">
+            <p class="text-sm text-muted-foreground">Informe seu e-mail para receber o link de redefinição.</p>
+            <form [formGroup]="forgotForm" (submit)="submitForgotPassword($event)" class="space-y-3">
+              <div class="space-y-2">
+                <ui-label for="forgot-email">Email</ui-label>
+                <div class="relative">
+                  <i-lucide name="Mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></i-lucide>
+                  <ui-input id="forgot-email" type="email" placeholder="seu@email.com" className="pl-14" formControlName="email"></ui-input>
+                </div>
+              </div>
+              <div class="flex justify-end gap-2">
+                <ui-button variant="ghost" type="button" (onClick)="closeForgotPassword()">Cancelar</ui-button>
+                <ui-button type="submit" className="text-white" [disabled]="isLoading()">
+                  {{ isLoading() ? 'Enviando...' : 'Enviar' }}
+                </ui-button>
+              </div>
+            </form>
+          </div>
+        </ui-modal>

@@ -1,18 +1,31 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./src/**/*.{html,ts}"
   ],
   theme: {
     extend: {
       colors: {
-        primary: "#2563eb",        // Azul royal
-        secondary: "#f3f4f6",      // Ciano (sky-400) — moderno e coeso
-        muted: "#6b7280",          // Gray-500
-        background: "#ffffff",
-        foreground: "#1e3a8a",     // Gray-900
-        card: "#f9fafb",           // Gray-50
-        border: "#e5e7eb",         // Gray-200
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        card: "hsl(var(--card))",
+        'card-foreground': "hsl(var(--card-foreground))",
+        popover: "hsl(var(--popover))",
+        'popover-foreground': "hsl(var(--popover-foreground))",
+        primary: "hsl(var(--primary))",
+        'primary-foreground': "hsl(var(--primary-foreground))",
+        secondary: "hsl(var(--secondary))",
+        'secondary-foreground': "hsl(var(--secondary-foreground))",
+        muted: "hsl(var(--muted))",
+        'muted-foreground': "hsl(var(--muted-foreground))",
+        accent: "hsl(var(--accent))",
+        'accent-foreground': "hsl(var(--accent-foreground))",
+        destructive: "hsl(var(--destructive))",
+        'destructive-foreground': "hsl(var(--destructive-foreground))",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
       }
     },
   },
