@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../../shared/services/auth.service';
+import { SseService } from '../../../shared/services/sse.service';
 
 @Component({
   selector: 'page-splash',
@@ -12,9 +13,10 @@ import { AuthService } from '../../../shared/services/auth.service';
   styleUrl: './splash.component.css'
 })
 export class SplashComponent implements OnInit {
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router, private sse: SseService) {}
 
   ngOnInit(): void {
+    this.sse.connect();
     this.auth.fetchUserProfile().subscribe({
       next: () => {
         this.router.navigate(['/saas/dashboard']);

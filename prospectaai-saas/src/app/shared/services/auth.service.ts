@@ -139,7 +139,7 @@ export class AuthService {
   fetchUserProfile(): Observable<UserProfileResponse> {
     const token = this.getToken();
     if (!token || this.isTokenExpired()) {
-      this.logout();
+      this.logoutExpired();
       return throwError(() => new Error('Unauthorized'));
     }
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -147,12 +147,31 @@ export class AuthService {
       .pipe(
         tap(profile => this.setUserProfile(profile)),
         catchError(err => {
-          if (err?.status !== 200) {
+          if (err?.status === 401 || err?.status === 403) {
+            this.logoutExpired();
+          } else if (err?.status !== 200) {
             this.logout();
           }
           return throwError(() => err);
         })
       );
+  }
+
+  dispatchN8n(request: { query: string; platform: 'GOOGLE_MAPS' | 'OTHER' }): Observable<any> {
+    const token = this.getToken();
+    if (!token || this.isTokenExpired()) {
+      this.logoutExpired();
+      return throwError(() => new Error('Unauthorized'));
+    }
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.post(`${this.API_URL}/api/v1/async/prospect/call`, request, { headers }).pipe(
+      catchError(err => {
+        if (err?.status === 401 || err?.status === 403) {
+          this.logoutExpired();
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   oauthLogin(provider: 'google' | 'github'): void {
@@ -231,7 +250,9 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return this.isAuthenticatedSubject.value;
+    const val = this.hasToken() && !this.isTokenExpired();
+    this.isAuthenticatedSubject.next(val);
+    return val;
   }
 
   private setPreRegisterId(preRegisterId: string): void {
@@ -282,7 +303,7 @@ export class AuthService {
     localStorage.setItem(this.TOKEN_EXPIRED_AT_KEY, iso);
   }
 
-  private isTokenExpired(): boolean {
+  isTokenExpired(): boolean {
     if (!this.isBrowser()) return true;
     const expiredAt = localStorage.getItem(this.TOKEN_EXPIRED_AT_KEY);
     if (!expiredAt) return true;
@@ -299,6 +320,13 @@ export class AuthService {
     return d < new Date();
   }
 
+  logoutExpired(): void {
+    if (this.isBrowser()) {
+      try { sessionStorage.setItem('session_expired', 'true'); } catch {}
+    }
+    this.logout();
+  }
+
   private removeTokenExpiredAt(): void {
     if (!this.isBrowser()) return;
     localStorage.removeItem(this.TOKEN_EXPIRED_AT_KEY);
@@ -312,6 +340,10 @@ export class AuthService {
   private getAuthHeaders(): Record<string, string> {
     const token = this.getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  getApiUrl(): string {
+    return this.API_URL;
   }
 
   private normalizeExpiredAt(expiredAt: string | Date): string {

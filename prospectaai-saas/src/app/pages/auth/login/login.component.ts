@@ -121,6 +121,14 @@ export class LoginPageComponent implements OnInit {
         sessionStorage.removeItem('logout_goodbye');
       }
     } catch {}
+
+    try {
+      const expired = sessionStorage.getItem('session_expired');
+      if (expired === 'true') {
+        this.errorMessage.set('Sua sessão expirou. Faça login novamente.');
+        sessionStorage.removeItem('session_expired');
+      }
+    } catch {}
   }
 
   async handleLogin(event: Event) {

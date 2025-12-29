@@ -9,6 +9,8 @@ import { LabelComponent } from '../../../components/ui/label/label.component';
 import { SelectComponent } from '../../../components/ui/select/select.component';
 import { SaasMainLayoutComponent } from '../../../components/layout/saas-main-layout/saas-main-layout.component';
 import { SliderComponent } from '../../../components/ui/slider/slider.component';
+import { AuthService } from '../../../shared/services/auth.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-prospeccao',
@@ -30,9 +32,9 @@ import { SliderComponent } from '../../../components/ui/slider/slider.component'
 export class ProspeccaoComponent implements OnInit {
   prospeccaoForm!: FormGroup;
   toastVisible = false;
-  
-  constructor(private fb: FormBuilder) {}
-  
+
+  constructor(private fb: FormBuilder, private auth: AuthService, private toast: ToastService) {}
+
   ngOnInit(): void {
     this.prospeccaoForm = this.fb.group({
       location: [''],
@@ -48,7 +50,41 @@ export class ProspeccaoComponent implements OnInit {
   get companySize() { return this.prospeccaoForm.get('companySize')?.value; }
 
   handleSearch() {
-    this.toastVisible = true;
-    setTimeout(() => (this.toastVisible = false), 4000);
+    const location = (this.location || '').trim();
+    const businessType = (this.businessType || '').trim();
+    const radius = Number(this.searchRadius || 0);
+    const companySize = (this.companySize || '').trim();
+
+    if (!location || !businessType) {
+      this.toast.warning('Atenção', 'Informe localização e tipo de negócio.');
+      return;
+    }
+
+    const query = this.composeSerpApiPrompt({ location, businessType, radius, companySize });
+    const payload = { query, platform: 'GOOGLE_MAPS' as const };
+
+    this.auth.dispatchN8n(payload).subscribe({
+      next: () => {
+        this.toastVisible = true;
+        this.toast.success('Busca iniciada', 'Sua prospecção está sendo processada.');
+        setTimeout(() => (this.toastVisible = false), 4000);
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'Não foi possível iniciar a prospecção.';
+        this.toast.error('Erro ao iniciar', msg);
+      }
+    });
+  }
+
+  private composeSerpApiPrompt(params: { location: string; businessType: string; radius: number; companySize: string }): string {
+    const base = `${params.businessType} em ${params.location}`.trim();
+    const parts: string[] = [base];
+    if (params.radius && params.radius > 0) {
+      parts.push(`até ${params.radius} km`);
+    }
+    if (params.companySize && params.companySize !== 'Todos os portes') {
+      parts.push(params.companySize);
+    }
+    return parts.join(', ');
   }
 }

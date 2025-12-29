@@ -20,6 +20,9 @@ export const authGuard: CanActivateFn = (route, state): boolean | UrlTree => {
     return true;
   }
 
+  if (auth.isTokenExpired()) {
+    try { sessionStorage.setItem('session_expired', 'true'); } catch {}
+  }
   // Sem autenticação nem token na URL: enviar para /auth
   return router.createUrlTree(['/auth']);
 };

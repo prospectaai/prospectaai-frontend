@@ -20,6 +20,12 @@ export class ThemeToggleComponent implements OnInit {
     const stored = this.getStoredTheme();
     const preferred = stored ?? (this.prefersDark() ? 'dark' : 'light');
     this.applyTheme(preferred);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        const s = this.getStoredTheme();
+        if (s) this.applyTheme(s);
+      }
+    });
   }
 
   toggle(): void {
@@ -31,6 +37,7 @@ export class ThemeToggleComponent implements OnInit {
     this.current.set(theme);
     if (!this.isBrowser()) return;
     try {
+      localStorage.setItem('app_theme', theme);
       sessionStorage.setItem('app_theme', theme);
     } catch {}
     const root = document.documentElement;
@@ -43,7 +50,7 @@ export class ThemeToggleComponent implements OnInit {
 
   private getStoredTheme(): Theme | null {
     try {
-      const t = sessionStorage.getItem('app_theme');
+      const t = localStorage.getItem('app_theme') ?? sessionStorage.getItem('app_theme');
       return t === 'dark' || t === 'light' ? (t as Theme) : null;
     } catch {
       return null;
