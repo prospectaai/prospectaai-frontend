@@ -12,6 +12,8 @@ import { SaasMainLayoutComponent } from '../../../components/layout/saas-main-la
 import { LucideAngularModule } from 'lucide-angular';
 import { ModalComponent } from '../../../components/ui/modal/modal.component';
 import { ThemeToggleComponent } from '../../../components/ui/theme-toggle/theme-toggle.component';
+import { NotificationsService } from '../../../shared/services/notifications.service';
+import { ToggleButtonComponent } from '../../../components/ui/toggle-button/toggle-button.component';
 
 @Component({
   selector: 'page-configuracoes',
@@ -27,7 +29,8 @@ import { ThemeToggleComponent } from '../../../components/ui/theme-toggle/theme-
     ButtonComponent,
     LucideAngularModule,
     ModalComponent,
-    ThemeToggleComponent
+    ThemeToggleComponent,
+    ToggleButtonComponent
   ],
   templateUrl: './configuracoes.component.html',
   styleUrls: ['./configuracoes.component.css']
@@ -43,7 +46,7 @@ export class ConfiguracoesComponent implements OnInit {
   avatarUrl = signal<string>('');
   showLogoutModal = signal(false);
 
-  constructor(private auth: AuthService, private router: Router) {
+  constructor(private auth: AuthService, private router: Router, public notifs: NotificationsService) {
     const profile = this.auth.getUserProfile();
     if (profile) {
       this.displayName.set(profile.displayName);

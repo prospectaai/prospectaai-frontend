@@ -50,6 +50,32 @@
             </div>
             <ui-theme-toggle></ui-theme-toggle>
           </div>
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm font-medium">Notificações do navegador</div>
+              <div class="text-xs text-muted-foreground">Sistema operacional</div>
+            </div>
+            <ui-toggle-button
+              [active]="notifs.enableBrowserNotifications()"
+              [onLabel]="'Habilitado'"
+              [offLabel]="'Desabilitado'"
+              [size]="'sm'"
+              (click)="notifs.toggleBrowserNotifications()"
+            ></ui-toggle-button>
+          </div>
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm font-medium">Sons de notificações</div>
+              <div class="text-xs text-muted-foreground">Alertas sonoros</div>
+            </div>
+            <ui-toggle-button
+              [active]="notifs.enableSound()"
+              [onLabel]="'Habilitado'"
+              [offLabel]="'Desabilitado'"
+              [size]="'sm'"
+              (click)="notifs.toggleSound()"
+            ></ui-toggle-button>
+          </div>
         </ui-card-content>
       </ui-card>
 

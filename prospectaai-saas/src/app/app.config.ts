@@ -3,12 +3,12 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from './shared/services/auth.service';
-import { catchError } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { ArrowRight, ArrowLeft, BarChart3, Building2, Calendar, Check, ChevronDown, ChevronUp, Chrome, CreditCard, Download, ExternalLink, Filter, Github, Globe, Key, Lock, LucideAngularModule, Mail, MapPin, Menu, Phone, RectangleGogglesIcon, Search, Settings, Star, Target, TrendingUp, User, Users, X, Zap, AlertTriangle, Info, CheckCircle, XCircle, Package, DollarSign, Clock, Loader2, CheckCircle2, Headphones, RotateCcw, Moon, Sun } from 'lucide-angular';
+import { ArrowRight, ArrowLeft, BarChart3, Building2, Calendar, Check, ChevronDown, ChevronUp, Chrome, CreditCard, Download, ExternalLink, Filter, Github, Globe, Key, Lock, LucideAngularModule, Mail, MapPin, Menu, Phone, RectangleGogglesIcon, Search, Settings, Star, Target, TrendingUp, User, Users, X, Zap, AlertTriangle, Info, CheckCircle, XCircle, Package, DollarSign, Clock, Loader2, CheckCircle2, Headphones, RotateCcw, Moon, Sun, Bell } from 'lucide-angular';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -35,10 +35,33 @@ export const appConfig: ApplicationConfig = {
           const expired = auth.isTokenExpired();
 
           if (!isAuthEndpoint) {
-            if (!token || expired) {
-              auth.logoutExpired();
-              return throwError(() => new Error('Unauthorized'));
-            }
+            return auth.validateToken().pipe(
+              switchMap(valid => {
+                if (!valid) {
+                  return throwError(() => new Error('Unauthorized'));
+                }
+                const tk = auth.getToken();
+                if (tk) {
+                  req = req.clone({ setHeaders: { Authorization: `Bearer ${tk}` } });
+                }
+                return next(req).pipe(
+                  catchError(err => {
+                    const status = err?.status;
+                    if (status === 401 || status === 403) {
+                      auth.logoutExpired();
+                    }
+                    return throwError(() => err);
+                  })
+                );
+              }),
+              catchError(() => {
+                const tk = auth.getToken();
+                if (tk) {
+                  req = req.clone({ setHeaders: { Authorization: `Bearer ${tk}` } });
+                }
+                return next(req);
+              })
+            );
           }
 
           if (token && !expired) {
@@ -63,7 +86,7 @@ export const appConfig: ApplicationConfig = {
         ArrowRight, MapPin, Calendar, ChevronDown, ChevronUp, Search, Building2, Filter, Menu,
         Settings, Download, Phone, ExternalLink, Github, Chrome, CreditCard, Key, X, AlertTriangle, Info,
         ArrowLeft, CheckCircle, XCircle, Package, DollarSign, Clock, Loader2, CheckCircle2, Headphones, RotateCcw,
-        Moon, Sun
+        Moon, Sun, Bell
       })
     )
   ]

@@ -1,25 +1,81 @@
 <div class="min-h-screen flex flex-col bg-background text-foreground">
   <header class="p-4 border-b border-border/50 flex items-center justify-between">
     <!-- Logo e Título -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-3">
       <button (click)="toggleMobileMenu()" class="md:hidden p-2 rounded-md hover:bg-muted/50">
         <i-lucide name="menu" class="w-5 h-5"></i-lucide>
       </button>
-      <h1 class="text-lg font-semibold">PropectaAI</h1>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+          <i-lucide name="target" class="h-5 w-5 text-white"></i-lucide>
+        </div>
+        <span class="text-xl font-bold">PropectaAI</span>
+      </div>
     </div>
 
     <!-- Navegação Desktop -->
     <nav class="hidden md:flex items-center gap-6">
-      <a routerLink="/saas/dashboard" routerLinkActive="text-primary font-medium" class="text-sm text-muted-foreground hover:text-primary transition-colors">Dashboard</a>
-      <a routerLink="/saas/prospect" routerLinkActive="text-primary font-medium" class="text-sm text-muted-foreground hover:text-primary transition-colors">Prospecção</a>
-      <a routerLink="/saas/results" routerLinkActive="text-primary font-medium" class="text-sm text-muted-foreground hover:text-primary transition-colors">Resultados</a>
+      <a
+        routerLink="/saas/dashboard"
+        #rlaDash="routerLinkActive"
+        routerLinkActive="font-medium"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-sm transition-colors hover:text-primary"
+        [class.text-primary]="rlaDash.isActive"
+        [class.text-muted-foreground]="!rlaDash.isActive"
+      >Dashboard</a>
+      <a
+        routerLink="/saas/prospect"
+        #rlaPros="routerLinkActive"
+        routerLinkActive="font-medium"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-sm transition-colors hover:text-primary"
+        [class.text-primary]="rlaPros.isActive"
+        [class.text-muted-foreground]="!rlaPros.isActive"
+      >Prospecção</a>
+      <a
+        routerLink="/saas/results"
+        #rlaRes="routerLinkActive"
+        routerLinkActive="font-medium"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-sm transition-colors hover:text-primary"
+        [class.text-primary]="rlaRes.isActive"
+        [class.text-muted-foreground]="!rlaRes.isActive"
+      >Resultados</a>
     </nav>
 
     <!-- Avatar e Configurações -->
-    <div class="flex items-center gap-2">
-      <button class="p-1 rounded-md hover:bg-muted/50">
-        <i-lucide name="settings" class="w-5 h-5 text-muted-foreground"></i-lucide>
+    <div class="flex items-center gap-2 relative">
+      <button type="button" class="relative p-2 rounded-md hover:bg-muted/50" (click)="toggleNotifications()">
+        <i-lucide name="Bell" class="w-5 h-5"></i-lucide>
+        <span *ngIf="notifs.getUnreadCount() > 0" class="absolute -top-1 -right-1 text-[10px] px-1.5 py-0.5 rounded-full bg-red-600 text-white">
+          {{ notifs.getUnreadCount() }}
+        </span>
       </button>
+      <div *ngIf="notificationsOpen()" class="absolute right-12 top-10 z-50 w-80 rounded-md border bg-popover text-popover-foreground shadow-md">
+        <div class="p-3 border-b flex items-center justify-between">
+          <a routerLink="/saas/notifications" class="text-xs text-primary hover:underline">Ir para notificações</a>
+        </div>
+        <div class="max-h-96 overflow-auto">
+          <div class="p-2 space-y-1">
+            <button *ngFor="let n of notifs.listPage()" class="block w-full text-left rounded-md p-2 hover:bg-muted/50 text-popover-foreground focus:outline-none" (click)="notifs.toggleExpanded(n.id)">
+              <div class="flex items-start gap-2">
+                <i-lucide [name]="n.icon || 'Bell'" class="w-4 h-4 mt-0.5"></i-lucide>
+                <div class="flex-1">
+                  <div class="flex items-center justify-between">
+                    <div class="text-sm font-medium" [class.text-muted-foreground]="n.read && !notifs.isExpanded(n.id)">{{ n.title }}</div>
+                    <i-lucide [name]="notifs.isExpanded(n.id) ? 'ChevronDown' : 'ChevronRight'" class="w-4 h-4 text-muted-foreground cursor-pointer" (click)="notifs.toggleExpanded(n.id); $event.stopPropagation()"></i-lucide>
+                  </div>
+                  <div class="text-xs text-muted-foreground" [class.opacity-70]="n.read && !notifs.isExpanded(n.id)">{{ n.sentLabel }} • {{ n.datetime }}</div>
+                  <div *ngIf="notifs.isExpanded(n.id) && n.content" class="text-xs mt-1">{{ n.content }}</div>
+                  <a *ngIf="notifs.isExpanded(n.id) && n.link" [routerLink]="n.link" class="text-xs text-primary hover:underline" (click)="$event.stopPropagation()">Abrir</a>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Configurações Display Profile -->
       <a routerLink="/saas/settings" class="flex items-center">
         <div class="w-8 h-8 rounded-full overflow-hidden border border-border/50 bg-primary/10 flex items-center justify-center text-primary">
           <img *ngIf="avatarUrl()" [src]="avatarUrl()" alt="avatar" class="w-full h-full object-cover" />
@@ -32,12 +88,29 @@
   <!-- Menu Mobile -->
   <div *ngIf="mobileMenuOpen()" class="md:hidden border-b border-border/50">
     <nav class="flex flex-col p-4 space-y-3">
-      <a routerLink="/saas/dashboard" routerLinkActive="text-primary font-medium" class="text-sm text-muted-foreground hover:text-primary transition-colors">Dashboard</a>
-      <a routerLink="/saas/prospect" routerLinkActive="text-primary font-medium" class="text-sm text-muted-foreground hover:text-primary transition-colors">Prospecção</a>
+      <a
+        routerLink="/saas/dashboard"
+        #rlaMDash="routerLinkActive"
+        routerLinkActive="font-medium"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-sm transition-colors hover:text-primary"
+        [class.text-primary]="rlaMDash.isActive"
+        [class.text-muted-foreground]="!rlaMDash.isActive"
+      >Dashboard</a>
+      <a
+        routerLink="/saas/prospect"
+        #rlaMPros="routerLinkActive"
+        routerLinkActive="font-medium"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-sm transition-colors hover:text-primary"
+        [class.text-primary]="rlaMPros.isActive"
+        [class.text-muted-foreground]="!rlaMPros.isActive"
+      >Prospecção</a>
     </nav>
   </div>
 
   <main class="flex-1 p-6">
     <ng-content></ng-content>
+    <saas-tasks-accordion></saas-tasks-accordion>
   </main>
 </div>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, map, catchError, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, tap, map, catchError, throwError, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { LoginRequest } from '../dtos/login-request.dto';
 import { LoginResponse } from '../dtos/login-response.dto';
@@ -53,6 +53,8 @@ export class AuthService {
   private readonly TOKEN_EXPIRED_AT_KEY = 'token_expired_at';
   private readonly PRE_REGISTER_ID_KEY = 'preRegisterId';
   private readonly USER_PROFILE_KEY = 'user_profile';
+  private lastValidationAt: number | null = null;
+  private readonly VALIDATION_CACHE_MS = 15000;
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.isBrowser() ? this.hasToken() && !this.isTokenExpired() : false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -149,8 +151,6 @@ export class AuthService {
         catchError(err => {
           if (err?.status === 401 || err?.status === 403) {
             this.logoutExpired();
-          } else if (err?.status !== 200) {
-            this.logout();
           }
           return throwError(() => err);
         })
@@ -166,7 +166,7 @@ export class AuthService {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return this.http.post(`${this.API_URL}/api/v1/async/prospect/call`, request, { headers }).pipe(
       catchError(err => {
-        if (err?.status === 401 || err?.status === 403) {
+        if ((err?.status === 401 || err?.status === 403) && this.isTokenExpired()) {
           this.logoutExpired();
         }
         return throwError(() => err);
@@ -344,6 +344,31 @@ export class AuthService {
 
   getApiUrl(): string {
     return this.API_URL;
+  }
+
+  validateToken(): Observable<boolean> {
+    const token = this.getToken();
+    if (!token) {
+      this.logoutExpired();
+      return of(false);
+    }
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.get(`${this.API_URL}/api/v1/auth/validate`, { headers, responseType: 'text' })
+      .pipe(
+        map(res => typeof res === 'string' && res.length > 0 && res !== 'invalid'),
+        tap(valid => {
+          if (valid) {
+            this.lastValidationAt = Date.now();
+          } else {
+            this.logoutExpired();
+          }
+        }),
+        catchError((err) => {
+          window.alert(JSON.stringify(err))
+          this.logoutExpired();
+          return of(false);
+        })
+      );
   }
 
   private normalizeExpiredAt(expiredAt: string | Date): string {

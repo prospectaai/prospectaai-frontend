@@ -22,7 +22,7 @@ export class SplashComponent implements OnInit {
         this.router.navigate(['/saas/dashboard']);
       },
       error: (err) => {
-        window.alert(JSON.stringify(err));
+        try { if (typeof window !== 'undefined') window.alert(JSON.stringify(err)); } catch {}
         const msg = (err?.error?.message as string) || 'Não foi possível carregar seu perfil.';
         this.router.navigate(['/error'], { queryParams: { message: msg } });
       }

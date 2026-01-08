@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, effect } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { CardComponent } from '../../../components/ui/card/card.component';
@@ -11,6 +11,8 @@ import { SaasMainLayoutComponent } from '../../../components/layout/saas-main-la
 import { SliderComponent } from '../../../components/ui/slider/slider.component';
 import { AuthService } from '../../../shared/services/auth.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { Router } from '@angular/router';
+import { TasksService } from '../../../shared/services/tasks.service';
 
 @Component({
   selector: 'app-prospeccao',
@@ -32,8 +34,17 @@ import { ToastService } from '../../../shared/services/toast.service';
 export class ProspeccaoComponent implements OnInit {
   prospeccaoForm!: FormGroup;
   toastVisible = false;
+  isProcessing = signal(false);
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private toast: ToastService) {}
+  constructor(private fb: FormBuilder, private auth: AuthService, private toast: ToastService, private router: Router, private tasks: TasksService) {
+    effect(() => {
+      const doneAt = this.tasks.getLastCompletedAt();
+      if (doneAt && this.isProcessing()) {
+        this.isProcessing.set(false);
+        this.router.navigate(['/saas/dashboard']);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.prospeccaoForm = this.fb.group({
@@ -63,13 +74,16 @@ export class ProspeccaoComponent implements OnInit {
     const query = this.composeSerpApiPrompt({ location, businessType, radius, companySize });
     const payload = { query, platform: 'GOOGLE_MAPS' as const };
 
+    this.isProcessing.set(true);
     this.auth.dispatchN8n(payload).subscribe({
       next: () => {
+        this.isProcessing.set(false);
         this.toastVisible = true;
         this.toast.success('Busca iniciada', 'Sua prospecção está sendo processada.');
         setTimeout(() => (this.toastVisible = false), 4000);
       },
       error: (err) => {
+        this.isProcessing.set(false);
         const msg = err?.error?.message || 'Não foi possível iniciar a prospecção.';
         this.toast.error('Erro ao iniciar', msg);
       }

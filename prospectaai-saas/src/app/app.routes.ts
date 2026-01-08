@@ -12,6 +12,7 @@ import { GerenciamentoAssinaturaComponent } from './pages/saas/gerenciamento-ass
 import { OAuthCallbackComponent } from './pages/auth/oauth-callback/oauth-callback.component';
 import { SplashComponent } from './pages/auth/splash/splash.component';
 import { ErrorPageComponent } from './pages/public/error/error.component';
+import { NotificationsPageComponent } from './pages/saas/notifications/notifications.component';
 
 export const routes: Routes = [
   // Rotas de páginas publicas do app
@@ -27,5 +28,6 @@ export const routes: Routes = [
   { path: 'saas/results', component: ResultadosComponent, canActivate: [authGuard] },
   { path: 'saas/settings', component: ConfiguracoesComponent, canActivate: [authGuard] },
   { path: 'saas/subscription', component: GerenciamentoAssinaturaComponent, canActivate: [authGuard] },
+  { path: 'saas/notifications', component: NotificationsPageComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];

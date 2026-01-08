@@ -120,11 +120,13 @@
 
         <!-- Ações -->
         <div class="flex gap-3 pt-4">
-          <ui-button (click)="handleSearch()" class="flex-1 gap-2 shadow-glow text-white" size="lg">
-            <lucide-icon name="search" class="h-5 w-5"></lucide-icon>
-            Iniciar Busca
+          <ui-button (click)="handleSearch()" [disabled]="isProcessing()" class="flex-1 gap-2 shadow-glow text-white" size="lg">
+            <lucide-icon *ngIf="!isProcessing()" name="Search" class="h-5 w-5"></lucide-icon>
+            <span *ngIf="isProcessing()" class="inline-block h-5 w-5 rounded-full border-2 border-current border-t-transparent animate-spin" aria-hidden="true"></span>
+            <span *ngIf="!isProcessing()">Iniciar Busca</span>
+            <span *ngIf="isProcessing()">Processando...</span>
           </ui-button>
-          <ui-button variant="outline" size="lg">
+          <ui-button variant="outline" size="lg" [disabled]="isProcessing()">
             Salvar como Template
           </ui-button>
         </div>

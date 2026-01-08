@@ -1,0 +1,37 @@
+.shadow-glass { box-shadow: 0 10px 30px rgba(0,0,0,.08) }
+
+.accordion-panel {
+  position: relative;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .25s ease, opacity .25s ease, transform .25s ease;
+  opacity: 0;
+  transform: translateY(8px);
+}
+.accordion-panel.open {
+  z-index: 60;
+  max-height: 50vh;
+  opacity: 1;
+  transform: translateY(0);
+}
+.panel-content { position: relative; height: 50vh; overflow: auto; }
+.panel-close {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  z-index: 70;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--muted-foreground);
+  width: 28px;
+  height: 28px;
+  border-radius: .375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s ease, border-color .2s ease;
+}
+.panel-close:hover {
+  background: var(--muted);
+  border-color: var(--border);
+}

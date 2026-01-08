@@ -1,0 +1,31 @@
+<layout-saas-main>
+  <div class="max-w-3xl mx-auto space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-semibold">Notificações</h2>
+      <div class="text-sm text-muted-foreground">Não lidas: {{ notifs.getUnreadCount() }}</div>
+    </div>
+    <div class="rounded-lg border bg-card">
+      <div class="divide-y">
+        <div *ngFor="let n of notifs.listPage()" class="p-4 cursor-pointer" (click)="notifs.markRead(n.id)">
+          <div class="flex items-start gap-3" [class.opacity-60]="n.read">
+            <i-lucide [name]="n.icon || 'Bell'" class="w-5 h-5 mt-0.5"></i-lucide>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <div class="font-medium">{{ n.title }}</div>
+                <div class="text-xs text-muted-foreground">{{ n.sentLabel }} • {{ n.datetime }}</div>
+              </div>
+              <div *ngIf="n.content" class="text-sm mt-2">{{ n.content }}</div>
+              <div class="mt-2 flex items-center gap-2">
+                <button *ngIf="!n.read" type="button" class="text-xs px-2 py-1 rounded-md hover:bg-muted/50" (click)="notifs.markRead(n.id); $event.stopPropagation()">Marcar como lida</button>
+                <a *ngIf="n.link" [routerLink]="n.link" class="text-xs text-primary hover:underline" (click)="$event.stopPropagation()">Abrir</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-4">
+        <ui-button [variant]="'ghost'" (click)="loadMore()">Carregar mais</ui-button>
+      </div>
+    </div>
+  </div>
+</layout-saas-main>

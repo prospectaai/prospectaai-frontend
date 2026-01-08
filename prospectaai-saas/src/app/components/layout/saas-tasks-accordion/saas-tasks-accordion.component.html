@@ -1,0 +1,73 @@
+<div class="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="pointer-events-auto">
+      <div class="rounded-md border border-border bg-background shadow-glass">
+        <button type="button" class="w-full p-3 flex items-center justify-between" (click)="toggle()">
+          <div class="text-sm font-medium" [class.text-muted-foreground]="!hasTasks">
+            {{ hasTasks ? 'Tarefas em processamento' : 'Nenhuma tarefa em processamento' }}
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="text-xs text-muted-foreground" *ngIf="hasTasks">
+              {{ processedCount }}/{{ totalCount }}
+            </div>
+            <!-- Ícone de abrir apenas quando fechado -->
+            <i-lucide *ngIf="!open()" name="ChevronUp" class="w-4 h-4 text-muted-foreground"></i-lucide>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="relative">
+    <div class="absolute bottom-0 left-0 right-0 pointer-events-auto">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="rounded-md border border-border bg-background shadow-glass accordion-panel pointer-events-auto" [class.open]="open()">
+          <div class="p-4 panel-content">
+            <!-- Botão de fechar no canto superior direito, visível apenas quando aberto -->
+            <button type="button" class="panel-close" *ngIf="open()" (click)="toggle()">
+              <i-lucide name="ChevronDown" class="w-4 h-4"></i-lucide>
+            </button>
+            <ng-container *ngIf="hasTasks; else emptyState">
+              <div class="w-full overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead class="sticky top-0 bg-background">
+                    <tr class="text-muted-foreground">
+                      <th class="text-left py-2 px-2">Nome</th>
+                      <th class="text-left py-2 px-2">Tipo</th>
+                      <th class="text-left py-2 px-2">Início</th>
+                      <th class="text-left py-2 px-2">Fim</th>
+                      <th class="text-left py-2 px-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let t of list" [class.opacity-60]="t.status === 'CONCLUIDA'" class="border-t">
+                      <td class="py-2 px-2">{{ t.name }}</td>
+                      <td class="py-2 px-2">{{ t.type }}</td>
+                      <td class="py-2 px-2">{{ t.start }}</td>
+                      <td class="py-2 px-2">{{ t.end || '—' }}</td>
+                      <td class="py-2 px-2">
+                        <div class="flex items-center gap-2">
+                          <i-lucide *ngIf="t.status === 'CONCLUIDA'" name="CheckCircle2" class="w-4 h-4 text-muted-foreground"></i-lucide>
+                          <i-lucide *ngIf="t.status === 'PROCESSANDO'" name="Loader2" class="w-4 h-4 animate-spin"></i-lucide>
+                          <span>{{ t.status === 'CONCLUIDA' ? 'Concluída' : 'Processando' }}</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
+            <ng-template #emptyState>
+              <div class="flex items-center justify-center h-[40vh] text-muted-foreground">
+                <div class="text-center space-y-2">
+                  <i-lucide name="Info" class="w-8 h-8 mx-auto"></i-lucide>
+                  <div class="text-sm">Nenhuma tarefa foi iniciada ainda.</div>
+                </div>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
