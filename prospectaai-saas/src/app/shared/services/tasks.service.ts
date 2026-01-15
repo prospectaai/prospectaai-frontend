@@ -23,6 +23,7 @@ export class TasksService {
   private lastCompletedAt = signal<number | null>(null);
   accordionOpen = signal<boolean>(false);
   private initialized = false;
+  private processedPollId: any = null;
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
@@ -51,7 +52,7 @@ export class TasksService {
   }
 
   addProspectionTaskStart(name: string): string {
-    const id = `task-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+    const id = `local:${Date.now()}:${Math.floor(Math.random() * 100000)}`;
     const item: TaskItem = {
       id,
       name,
@@ -83,15 +84,20 @@ export class TasksService {
     const mappedStatus: TaskStatus = dto.status === 'PROCESSED' ? 'CONCLUIDA' : 'PROCESSANDO';
     const mappedType: TaskType = dto.platform === 'GOOGLE_MAPS' ? 'PROSPECÇÃO' : 'OUTRA';
     const nowIso = new Date().toISOString();
+    const idStr = String(dto.taskId);
     this.tasks.update(curr => {
-      const idx = curr.findIndex(t => t.id === dto.taskId);
+      const idx = curr.findIndex(t => t.id === idStr);
       if (idx !== -1) {
         const t = curr[idx];
         const end = mappedStatus === 'CONCLUIDA' ? (t.end || nowIso) : undefined;
-        curr[idx] = { ...t, name: dto.query, type: mappedType, status: mappedStatus, end };
+        curr[idx] = { ...t, id: idStr, name: dto.query, type: mappedType, status: mappedStatus, end };
       } else {
+        const dupIdx = curr.findIndex(t => t.type === mappedType && t.status === 'PROCESSANDO' && t.name === dto.query);
+        if (dupIdx !== -1) {
+          curr.splice(dupIdx, 1);
+        }
         const item: TaskItem = {
-          id: dto.taskId,
+          id: idStr,
           name: dto.query,
           type: mappedType,
           start: nowIso,
@@ -124,7 +130,7 @@ export class TasksService {
             const status: TaskStatus = dto.status === 'PROCESSED' ? 'CONCLUIDA' : 'PROCESSANDO';
             const type: TaskType = dto.platform === 'GOOGLE_MAPS' ? 'PROSPECÇÃO' : 'OUTRA';
             return {
-              id: dto.taskId,
+              id: String(dto.taskId),
               name: dto.query,
               type,
               start: new Date().toISOString(),
@@ -139,5 +145,44 @@ export class TasksService {
       },
       error: () => {}
     });
+  }
+
+  private syncProcessedOnce(): void {
+    if (!this.auth.isBrowser()) return;
+    const url = `${this.auth.getApiUrl()}/api/v1/async/prospect/get-all-processed`;
+    this.http.get<AsyncTaskPanelDto[]>(url).subscribe({
+      next: (list) => {
+        const arr = Array.isArray(list) ? list : [];
+        if (arr.length === 0) return;
+        arr.forEach(dto => this.upsertFromDto(dto));
+      },
+      error: () => {}
+    });
+  }
+
+  startProcessedPolling(intervalMs = 6000): void {
+    if (this.processedPollId) return;
+    this.processedPollId = setInterval(() => {
+      const hasProcessing = this.getProcessingCount() > 0;
+      if (!hasProcessing) {
+        if (this.processedPollId) {
+          clearInterval(this.processedPollId);
+          this.processedPollId = null;
+        }
+        return;
+      }
+      this.syncProcessedOnce();
+    }, intervalMs);
+  }
+
+  clearAll(): void {
+    if (this.processedPollId) {
+      clearInterval(this.processedPollId);
+      this.processedPollId = null;
+    }
+    this.tasks.set([]);
+    this.lastCompletedAt.set(null);
+    this.accordionOpen.set(false);
+    this.initialized = false;
   }
 }

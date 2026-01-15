@@ -157,7 +157,14 @@ export class AuthService {
       );
   }
 
-  dispatchN8n(request: { query: string; platform: 'GOOGLE_MAPS' | 'OTHER' }): Observable<any> {
+  dispatchN8n(request: {
+    query: string;
+    platform: 'GOOGLE_MAPS' | 'OTHER';
+    location?: string;
+    businessType?: string;
+    radiusKm?: number;
+    companySize?: string;
+  }): Observable<any> {
     const token = this.getToken();
     if (!token || this.isTokenExpired()) {
       this.logoutExpired();

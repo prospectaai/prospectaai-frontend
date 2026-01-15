@@ -53,25 +53,41 @@
         </span>
       </button>
       <div *ngIf="notificationsOpen()" class="absolute right-12 top-10 z-50 w-80 rounded-md border bg-popover text-popover-foreground shadow-md">
-        <div class="p-3 border-b flex items-center justify-between">
-          <a routerLink="/saas/notifications" class="text-xs text-primary hover:underline">Ir para notificações</a>
+        <div class="p-3 border-b flex items-center justify-between bg-muted/10">
+          <span class="text-xs font-semibold">Notificações</span>
+          <a routerLink="/saas/notifications" class="text-xs text-primary hover:underline">Ver todas</a>
         </div>
-        <div class="max-h-96 overflow-auto">
-          <div class="p-2 space-y-1">
-            <button *ngFor="let n of notifs.listPage()" class="block w-full text-left rounded-md p-2 hover:bg-muted/50 text-popover-foreground focus:outline-none" (click)="notifs.toggleExpanded(n.id)">
-              <div class="flex items-start gap-2">
-                <i-lucide [name]="n.icon || 'Bell'" class="w-4 h-4 mt-0.5"></i-lucide>
-                <div class="flex-1">
-                  <div class="flex items-center justify-between">
-                    <div class="text-sm font-medium" [class.text-muted-foreground]="n.read && !notifs.isExpanded(n.id)">{{ n.title }}</div>
-                    <i-lucide [name]="notifs.isExpanded(n.id) ? 'ChevronDown' : 'ChevronRight'" class="w-4 h-4 text-muted-foreground cursor-pointer" (click)="notifs.toggleExpanded(n.id); $event.stopPropagation()"></i-lucide>
+        <div class="max-h-96 overflow-y-auto">
+          <ul *ngIf="listRenderReady()" class="divide-y divide-border/50" [attr.data-render]="renderKey()">
+            <li *ngFor="let n of notifs.itemsSig(); trackBy: trackById" class="block w-full min-h-12">
+              <details [open]="isExpanded(n.id)" (toggle)="onDetailsToggle(n.id, $event)" class="block">
+                <summary class="list-none w-full flex items-start gap-3 px-3 py-3 cursor-pointer select-none hover:bg-muted/50 focus:outline-none focus:bg-muted/50">
+                  <i-lucide [name]="n.icon || 'Bell'" class="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground"></i-lucide>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-sm font-medium truncate"
+                            [class.text-muted-foreground]="n.read && !isExpanded(n.id)"
+                            [class.text-foreground]="!n.read || isExpanded(n.id)">
+                        {{ n.title }}
+                      </span>
+                      <i-lucide [name]="isExpanded(n.id) ? 'ChevronDown' : 'ChevronRight'" class="w-3.5 h-3.5 text-muted-foreground shrink-0"></i-lucide>
+                    </div>
+                    <div class="text-xs text-muted-foreground mt-0.5" [class.opacity-70]="n.read && !isExpanded(n.id)">
+                      {{ n.sentLabel }} • {{ n.datetime }}
+                    </div>
                   </div>
-                  <div class="text-xs text-muted-foreground" [class.opacity-70]="n.read && !notifs.isExpanded(n.id)">{{ n.sentLabel }} • {{ n.datetime }}</div>
-                  <div *ngIf="notifs.isExpanded(n.id) && n.content" class="text-xs mt-1">{{ n.content }}</div>
-                  <a *ngIf="notifs.isExpanded(n.id) && n.link" [routerLink]="n.link" class="text-xs text-primary hover:underline" (click)="$event.stopPropagation()">Abrir</a>
+                </summary>
+                <div class="px-3 pb-3 pl-9">
+                  <div *ngIf="n.content" class="text-xs text-muted-foreground leading-relaxed break-words mb-2">
+                    {{ n.content }}
+                  </div>
+                  <a *ngIf="n.link" [routerLink]="n.link" class="text-xs text-primary hover:underline inline-block font-medium">Abrir</a>
                 </div>
-              </div>
-            </button>
+              </details>
+            </li>
+          </ul>
+          <div *ngIf="notifs.listPage().length === 0" class="p-6 text-center text-xs text-muted-foreground">
+            Nenhuma notificação encontrada
           </div>
         </div>
       </div>

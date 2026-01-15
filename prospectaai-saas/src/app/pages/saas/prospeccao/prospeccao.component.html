@@ -8,6 +8,48 @@
       </p>
     </div>
 
+    <!-- Templates Carousel -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-foreground">Templates de Prospecção</h3>
+        <button *ngIf="tpl.itemsSig().length > 3" type="button" (click)="openSelectTemplates()" class="text-xs text-primary hover:underline">Ver mais</button>
+      </div>
+      <div *ngIf="tpl.loadingSig(); else templatesContent" class="flex items-center justify-center py-6">
+        <span class="inline-block h-6 w-6 rounded-full border-2 border-muted-foreground border-t-transparent animate-spin" aria-hidden="true"></span>
+      </div>
+      <ng-template #templatesContent>
+        <ng-container *ngIf="tpl.itemsSig().length === 0; else templatesList">
+          <div class="rounded-lg border bg-card text-card-foreground p-6 text-center">
+            <div class="w-10 h-10 rounded-full bg-muted mx-auto mb-2 flex items-center justify-center">
+              <i-lucide name="Package" class="w-5 h-5 text-muted-foreground"></i-lucide>
+            </div>
+            <p class="text-sm text-muted-foreground">Você ainda não tem templates salvos.</p>
+            <p class="text-xs text-muted-foreground">Preencha os campos e use “Salvar como Template”.</p>
+          </div>
+        </ng-container>
+        <ng-template #templatesList>
+          <div class="flex gap-3 overflow-x-auto pb-1">
+            <div *ngIf="tpl.itemsSig().length > 0" class="min-w-[200px] rounded-lg border bg-card text-card-foreground p-3 hover:bg-secondary/50 cursor-pointer" [class.border-primary]="selectedTemplateId() === null" (click)="clearFormToNoTemplate()">
+              <div class="flex items-center gap-2">
+                <i-lucide name="RotateCcw" class="w-4 h-4 text-muted-foreground"></i-lucide>
+                <div class="text-sm font-medium truncate">Sem template</div>
+              </div>
+              <div class="text-xs text-muted-foreground mt-1">Clique para limpar</div>
+            </div>
+            <div *ngFor="let t of tpl.itemsSig().slice(0,3)" class="min-w-[220px] rounded-lg border bg-card text-card-foreground p-3 hover:bg-secondary/50 cursor-pointer" [class.border-primary]="selectedTemplateId() === t.id" (click)="applyQuickTemplate(t)">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-medium truncate">{{ t.title }}</div>
+                <button type="button" class="text-destructive hover:text-destructive/80" (click)="openDeleteTemplate(t.id); $event.stopPropagation()">
+                  <i-lucide name="Trash" class="w-4 h-4"></i-lucide>
+                </button>
+              </div>
+              <div class="text-xs text-muted-foreground mt-1">Clique para usar</div>
+            </div>
+          </div>
+        </ng-template>
+      </ng-template>
+    </div>
+
     <!-- Search Form -->
     <ui-card class="glass-effect border-0 shadow-glass-lg">
       <div class="p-6 space-y-6">
@@ -126,7 +168,7 @@
             <span *ngIf="!isProcessing()">Iniciar Busca</span>
             <span *ngIf="isProcessing()">Processando...</span>
           </ui-button>
-          <ui-button variant="outline" size="lg" [disabled]="isProcessing()">
+          <ui-button variant="outline" size="lg" [disabled]="isProcessing() || !canOpenSaveTemplate()" (click)="openSaveTemplate()">
             Salvar como Template
           </ui-button>
         </div>
@@ -159,6 +201,65 @@
       <p class="text-sm text-primary-foreground/80">
         Sua prospecção está sendo processada. Você será notificado quando concluída.
       </p>
+    </div>
+
+    <!-- Modal: Selecionar Template -->
+    <div *ngIf="showSelectModal()" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="relative bg-popover text-popover-foreground w-full max-w-lg rounded-xl shadow-lg border">
+        <div class="p-4 border-b flex items-center justify-between">
+          <h4 class="text-sm font-semibold">Selecionar Template</h4>
+          <button type="button" class="text-xs text-muted-foreground hover:text-foreground" (click)="closeSelectTemplates()">Fechar</button>
+        </div>
+        <div class="max-h-[60vh] overflow-y-auto p-4 space-y-2">
+          <div *ngFor="let t of tpl.itemsSig()" class="p-3 rounded-lg border hover:bg-secondary/50 cursor-pointer flex items-center justify-between" (click)="selectTemplate(t.id)">
+            <div class="text-sm font-medium truncate">{{ t.title }}</div>
+            <input type="radio" class="accent-primary" [checked]="selectedTemplateId() === t.id" />
+          </div>
+        </div>
+        <div class="p-4 border-t flex items-center justify-end gap-2">
+          <button type="button" class="px-3 py-2 text-xs rounded-md border" (click)="closeSelectTemplates()">Cancelar</button>
+          <button type="button" class="px-3 py-2 text-xs rounded-md bg-primary text-primary-foreground disabled:opacity-50" [disabled]="!selectedTemplateId()" (click)="applySelectedTemplate()">Usar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Salvar Template -->
+    <div *ngIf="showSaveModal()" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="relative bg-popover text-popover-foreground w-full max-w-md rounded-xl shadow-lg border">
+        <div class="p-4 border-b">
+          <h4 class="text-sm font-semibold">{{ isEditMode() ? 'Editar Template' : 'Salvar Template' }}</h4>
+        </div>
+        <div class="p-4 space-y-3">
+          <label class="text-xs text-muted-foreground">Nome do Template</label>
+          <input type="text" class="w-full px-3 py-2 rounded-md border bg-background text-foreground" [value]="saveTemplateName()" (input)="saveTemplateName.set(($any($event.target)).value)" placeholder="Ex: Restaurantes em SP até 10km" />
+          <div class="text-xs" [class.text-destructive]="(saveTemplateName() || '').trim().length > 0 && (!canSaveTemplate())" [class.text-muted-foreground]="canSaveTemplate()">
+            Mínimo 3 e máximo 55 caracteres. Não pode duplicar nomes.
+          </div>
+        </div>
+        <div class="p-4 border-t flex items-center justify-end gap-2">
+          <button type="button" class="px-3 py-2 text-xs rounded-md border" (click)="closeSaveTemplate()">Cancelar</button>
+          <button type="button" class="px-3 py-2 text-xs rounded-md bg-primary text-primary-foreground disabled:opacity-50" [disabled]="!canSaveTemplate()" (click)="saveTemplate()">{{ isEditMode() ? 'Salvar alterações' : 'Salvar' }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Confirmar Exclusão -->
+    <div *ngIf="showDeleteModal()" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="relative bg-popover text-popover-foreground w-full max-w-sm rounded-xl shadow-lg border">
+        <div class="p-4 border-b">
+          <h4 class="text-sm font-semibold">Excluir Template</h4>
+        </div>
+        <div class="p-4 space-y-3 text-sm">
+          <p>Tem certeza que deseja excluir este template?</p>
+        </div>
+        <div class="p-4 border-t flex items-center justify-end gap-2">
+          <button type="button" class="px-3 py-2 text-xs rounded-md border" (click)="closeDeleteTemplateModal()">Cancelar</button>
+          <button type="button" class="px-3 py-2 text-xs rounded-md bg-destructive text-destructive-foreground" (click)="confirmDeleteTemplate()">Excluir</button>
+        </div>
+      </div>
     </div>
   </div>
 </layout-saas-main>

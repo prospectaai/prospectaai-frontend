@@ -13,6 +13,7 @@ import { OAuthCallbackComponent } from './pages/auth/oauth-callback/oauth-callba
 import { SplashComponent } from './pages/auth/splash/splash.component';
 import { ErrorPageComponent } from './pages/public/error/error.component';
 import { NotificationsPageComponent } from './pages/saas/notifications/notifications.component';
+import { ProspeccaoDetalheComponent } from './pages/saas/prospeccao-detalhe/prospeccao-detalhe.component';
 
 export const routes: Routes = [
   // Rotas de páginas publicas do app
@@ -26,6 +27,7 @@ export const routes: Routes = [
   { path: 'saas/dashboard', component: DashboardPageComponent, canActivate: [authGuard] },
   { path: 'saas/prospect', component: ProspeccaoComponent, canActivate: [authGuard] },
   { path: 'saas/results', component: ResultadosComponent, canActivate: [authGuard] },
+  { path: 'saas/result/:taskId', component: ProspeccaoDetalheComponent, canActivate: [authGuard] },
   { path: 'saas/settings', component: ConfiguracoesComponent, canActivate: [authGuard] },
   { path: 'saas/subscription', component: GerenciamentoAssinaturaComponent, canActivate: [authGuard] },
   { path: 'saas/notifications', component: NotificationsPageComponent, canActivate: [authGuard] },

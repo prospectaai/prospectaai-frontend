@@ -5,7 +5,7 @@
       <div>
         <h1 class="text-3xl font-bold text-foreground mb-2">Resultados</h1>
         <p class="text-muted-foreground">
-          {{ mockCompanies.length }} empresas encontradas
+          {{ filteredCompanies.length }} resultados encontrados
         </p>
       </div>
       <ui-button class="gap-2 shadow-glow text-white">
@@ -15,102 +15,122 @@
     </div>
 
     <!-- Search & Filters -->
-    <ui-card class="glass-effect border-0 shadow-glass">
-      <div class="p-4 flex gap-3" [formGroup]="searchForm">
-        <div class="relative flex-1">
-          <i-lucide name="search" class="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"></i-lucide>
-          <ui-input
-            className="pl-10 bg-background/50"
-            placeholder="Buscar empresas..."
-            formControlName="searchTerm"
-          ></ui-input>
+    <ui-card class="glass-effect border-0 shadow-glass relative z-[10000]">
+      <div class="p-4 space-y-3" [formGroup]="searchForm">
+        <div class="flex gap-3">
+          <div class="relative flex-1">
+            <i-lucide name="search" class="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"></i-lucide>
+            <ui-input
+              className="pl-10 bg-background/50"
+              placeholder="Buscar por nome (query)..."
+              formControlName="searchTerm"
+            ></ui-input>
+          </div>
+          <ui-button [variant]="hasActiveFilters() ? 'default' : 'outline'" class="gap-2" (click)="toggleFilters()">
+            <i-lucide name="filter" class="h-4 w-4"></i-lucide>
+            Filtros
+          </ui-button>
         </div>
-        <ui-button variant="outline" class="gap-2">
-          <i-lucide name="filter" class="h-4 w-4"></i-lucide>
-          Filtros
-        </ui-button>
+        <div *ngIf="showFilters()" class="rounded-lg border bg-muted/30 p-3 transition-all duration-300 ease-out relative z-[10001]">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div>
+              <label class="text-xs text-muted-foreground mb-1 block">Data inicial</label>
+              <input type="date" class="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" formControlName="filterFromDate">
+            </div>
+            <div>
+              <label class="text-xs text-muted-foreground mb-1 block">Data final</label>
+              <input type="date" class="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" formControlName="filterToDate">
+            </div>
+            <div>
+              <label class="text-xs text-muted-foreground mb-1 block">Plataforma</label>
+              <ui-select [options]="['GOOGLE_MAPS','OTHER']" placeholder="Todas" formControlName="filterPlatform"></ui-select>
+            </div>
+            <div>
+              <label class="text-xs text-muted-foreground mb-1 block">Status</label>
+              <ui-select [options]="['PROCESSING','PROCESSED']" placeholder="Todos" formControlName="filterStatus"></ui-select>
+            </div>
+          </div>
+        </div>
       </div>
     </ui-card>
 
-    <!-- Companies Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Prospections Grid -->
+    <div *ngIf="filteredCompanies.length > 0; else emptyState" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <ui-card
-        *ngFor="let company of filteredCompanies"
+        *ngFor="let item of pagedCompanies"
         class="glass-effect border-0 shadow-glass hover-lift"
       >
-        <div class="p-4">
+        <div class="p-4 space-y-3">
           <div class="flex items-start justify-between">
-            <div class="flex-1">
-              <h2 class="text-xl font-semibold mb-2">{{ company.name }}</h2>
+            <div class="flex-1 min-w-0">
+              <h2 class="text-lg font-semibold leading-tight mb-2 truncate w-full">{{ clipTitle(item.query) }}</h2>
               <div class="flex items-center gap-2 mb-2">
-                <ui-badge variant="secondary" size="sm">{{ company.category }}</ui-badge>
-
-                <ui-badge
-                  *ngIf="company.status === 'verified'"
-                  className="bg-primary/10 text-primary border-primary/20"
-                  size="sm"
-                >
-                  Verificado
+                <ui-badge variant="secondary" size="xs">{{ item.platform }}</ui-badge>
+                <ui-badge *ngIf="item.status === 'PROCESSING'" size="xs" className="bg-muted text-muted-foreground border-muted">
+                  PROCESSANDO
                 </ui-badge>
-
-                <ui-badge
-                  *ngIf="company.status === 'new'"
-                  className="bg-primary/10 text-primary border-primary/20"
-                  size="sm"
-                >
-                  Novo
+                <ui-badge *ngIf="item.status === 'PROCESSED'" size="xs" className="bg-primary/10 text-primary border-primary/20">
+                  PROCESSADA
                 </ui-badge>
+              </div>
+              <div class="flex items-center gap-2 text-muted-foreground">
+                <i-lucide name="Calendar" class="h-4 w-4"></i-lucide>
+                <span class="text-xs">{{ formatDate(item.createdAt) }}</span>
               </div>
             </div>
             <div class="text-right">
-              <div class="flex items-center gap-1 text-yellow-500">
-                <span class="text-lg font-semibold">{{ company.rating }}</span>
-                <span class="text-sm">★</span>
+              <div class="flex items-center gap-2 text-muted-foreground">
+                <i-lucide name="Package" class="h-4 w-4"></i-lucide>
+                <span class="text-sm font-semibold">{{ item.resultsCount }}</span>
               </div>
             </div>
           </div>
 
-          <div class="space-y-3 mt-3 text-sm">
-            <div class="flex items-start gap-2">
-              <i-lucide name="map-pin" class="h-4 w-4 text-primary mt-0.5"></i-lucide>
-              <span class="text-muted-foreground">{{ company.address }}</span>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <i-lucide name="phone" class="h-4 w-4 text-primary"></i-lucide>
-              <span class="text-muted-foreground">{{ company.phone }}</span>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <i-lucide name="mail" class="h-4 w-4 text-primary"></i-lucide>
-              <span class="text-muted-foreground">{{ company.email }}</span>
-            </div>
-
-            <div class="grid grid-flow-col gap-1">
+          <div class="grid grid-flow-col gap-1">
+            <a [routerLink]="['/saas/result', item.taskId]">
               <ui-button variant="outline" size="sm" className="w-full">
-                <i-lucide name="external-link" class="h-4 w-4"></i-lucide>
+                <i-lucide name="ExternalLink" class="h-4 w-4"></i-lucide>
                 Ver Detalhes
               </ui-button>
-              <ui-button size="sm" className="w-full text-white">
-                Adicionar ao CRM
-              </ui-button>
-            </div>
+            </a>
           </div>
         </div>
       </ui-card>
     </div>
+    <ng-template #emptyState>
+      <ui-card class="glass-effect border-0 shadow-glass">
+        <div class="py-12 flex flex-col items-center justify-center text-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <i-lucide name="Search" class="w-6 h-6 text-primary"></i-lucide>
+          </div>
+          <p class="text-sm text-muted-foreground">Nenhum resultado encontrado ainda.</p>
+          <a routerLink="/saas/prospect">
+            <ui-button class="gap-2">
+              Fazer uma prospecção
+              <i-lucide name="ArrowRight" class="h-4 w-4"></i-lucide>
+            </ui-button>
+          </a>
+        </div>
+      </ui-card>
+    </ng-template>
 
     <!-- Pagination -->
-    <div class="flex justify-center pt-6">
-      <ui-card class="glass-effect border-0 shadow-glass">
+    <div class="flex justify-center pt-6" *ngIf="filteredCompanies.length > 0">
+      <ui-card class="glass-effect border-0 shadow-glass" [class.opacity-60]="pageCount <= 1">
         <div class="p-4 flex items-center gap-2">
-          <ui-button variant="outline" size="sm" [disabled]="true">Anterior</ui-button>
+          <ui-button variant="outline" size="sm" (click)="prevPage()" [disabled]="page() <= 1">Anterior</ui-button>
           <div class="flex gap-1">
-            <ui-button className="text-white" variant="default" size="sm">1</ui-button>
-            <ui-button variant="outline" size="sm">2</ui-button>
-            <ui-button variant="outline" size="sm">3</ui-button>
+            <ui-button
+              *ngFor="let p of [].constructor(pageCount); let i = index"
+              [variant]="(i + 1) === page() ? 'default' : 'outline'"
+              size="sm"
+              className="text-white"
+              (click)="goToPage(i + 1)"
+            >
+              {{ i + 1 }}
+            </ui-button>
           </div>
-          <ui-button variant="outline" size="sm">Próximo</ui-button>
+          <ui-button variant="outline" size="sm" (click)="nextPage()" [disabled]="page() >= pageCount">Próximo</ui-button>
         </div>
       </ui-card>
     </div>

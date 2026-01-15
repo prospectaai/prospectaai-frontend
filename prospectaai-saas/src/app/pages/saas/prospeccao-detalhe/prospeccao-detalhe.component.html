@@ -1,0 +1,83 @@
+<layout-saas-main>
+  <div class="max-w-4xl mx-auto space-y-6 animate-fade-in">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-foreground mb-2">Detalhe da Prospecção</h1>
+        <p class="text-muted-foreground">
+          {{ detail()?.query || '—' }}
+        </p>
+      </div>
+    </div>
+
+    <ng-container *ngIf="processing(); else detailContent">
+      <ui-card class="glass-effect border-0 shadow-glass">
+        <div class="py-16 flex flex-col items-center justify-center text-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <i-lucide name="Loader2" class="w-6 h-6 text-primary animate-spin"></i-lucide>
+          </div>
+          <p class="text-sm text-muted-foreground">Sua prospecção está em andamento.</p>
+          <p class="text-xs text-muted-foreground">Esta página atualizará automaticamente quando for concluída.</p>
+        </div>
+      </ui-card>
+    </ng-container>
+
+    <ng-template #detailContent>
+      <ui-card class="glass-effect border-0 shadow-glass">
+        <div class="p-6 space-y-6">
+          <div class="flex items-center gap-2">
+            <i-lucide name="Package" class="h-5 w-5 text-primary"></i-lucide>
+            <h2 class="font-semibold text-lg">Resultados ({{ detail()?.resultsCount || 0 }})</h2>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ui-card *ngFor="let r of pagedResults()" class="glass-effect border-0 shadow-glass hover-lift">
+              <div class="p-4 space-y-3 text-sm">
+                <div class="flex items-center justify-between">
+                  <p class="text-base font-semibold truncate">{{ r.nomeEmpresa }}</p>
+                  <div class="flex items-center gap-1 text-yellow-500" *ngIf="r.rating">
+                    <span class="text-sm font-semibold">{{ r.rating }}</span>
+                    <span class="text-xs">★</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2">
+                  <i-lucide name="MapPin" class="h-4 w-4 text-primary mt-0.5"></i-lucide>
+                  <span class="text-muted-foreground">{{ r.endereco || '—' }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i-lucide name="Phone" class="h-4 w-4 text-primary"></i-lucide>
+                  <span class="text-muted-foreground">{{ r.telefone || '—' }}</span>
+                  <a *ngIf="r.telefone" [href]="whatsappLink(r.telefone)" target="_blank" rel="noopener" class="ml-1 text-green-600 hover:text-green-700" aria-label="Abrir WhatsApp">
+                    <i-lucide name="MessageCircle" class="h-4 w-4"></i-lucide>
+                  </a>
+                </div>
+                <div class="flex items-center gap-2 min-w-0" *ngIf="r.website">
+                  <i-lucide name="ExternalLink" class="h-4 w-4 text-primary"></i-lucide>
+                  <a [href]="r.website" target="_blank" rel="noopener" class="text-primary text-xs hover:underline flex-1 min-w-0 truncate">{{ r.website }}</a>
+                </div>
+              </div>
+            </ui-card>
+          </div>
+          <div class="flex justify-center pt-6" *ngIf="(detail()?.results?.length || 0) > 0">
+            <ui-card class="glass-effect border-0 shadow-glass" [class.opacity-60]="pageCount <= 1">
+              <div class="p-4 flex items-center gap-2">
+                <ui-button variant="outline" size="sm" (click)="prevPage()" [disabled]="page() <= 1">Anterior</ui-button>
+                <div class="flex gap-1">
+                  <ui-button
+                    *ngFor="let p of [].constructor(pageCount); let i = index"
+                    [variant]="(i + 1) === page() ? 'default' : 'outline'"
+                    size="sm"
+                    className="text-white"
+                    (click)="goToPage(i + 1)"
+                  >
+                    {{ i + 1 }}
+                  </ui-button>
+                </div>
+                <ui-button variant="outline" size="sm" (click)="nextPage()" [disabled]="page() >= pageCount">Próximo</ui-button>
+              </div>
+            </ui-card>
+          </div>
+        </div>
+      </ui-card>
+    </ng-template>
+  </div>
+</layout-saas-main>

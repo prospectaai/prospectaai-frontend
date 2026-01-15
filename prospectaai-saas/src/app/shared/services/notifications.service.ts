@@ -34,6 +34,8 @@ export class NotificationsService {
   enableBrowserNotifications = signal<boolean>(false);
   enableSound = signal<boolean>(true);
 
+  public itemsSig = this.items.asReadonly();
+
   getUnreadCount(): number {
     return this.totalUnread();
   }
@@ -95,7 +97,6 @@ export class NotificationsService {
   }
 
   markAllUnreadAsRead(): void {
-    window.alert('Aguarde enquanto marcamos todas as notificações como lidas. Isso pode levar alguns segundos.');
     const unreadIds = this.items().filter(n => !n.read).map(n => n.id);
     if (unreadIds.length === 0) {
       this.totalUnread.set(0);
@@ -110,7 +111,6 @@ export class NotificationsService {
     const base = `${this.auth.getApiUrl()}/api/v1/notification/item/`;
     unreadIds.forEach(id => {
       const url = `${base}${id}/read`;
-      window.alert(`Marcando notificação ${id} como lida. URL: ${url}`);
       const tk = this.auth.getToken();
       const headers = tk ? new HttpHeaders({ Authorization: `Bearer ${tk}` }) : new HttpHeaders();
       this.http.patch<void>(url, null, { headers }).subscribe({ next: () => {}, error: () => {} });
@@ -170,11 +170,33 @@ export class NotificationsService {
   addNotification(item: NotificationItem): void {
     const readSet = this.readIds();
     const mapped = readSet.has(item.id) ? { ...item, read: true } : item;
-    this.items.update(curr => [mapped, ...curr]);
+    this.items.update(curr => {
+      const idx = curr.findIndex(n => n.id === mapped.id);
+      if (idx !== -1) {
+        curr[idx] = mapped;
+        return [...curr];
+      }
+      return [mapped, ...curr];
+    });
     const unread = this.items().filter(n => !n.read).length;
     this.totalUnread.set(unread);
     this.playSound();
     this.showOsNotification(mapped);
+  }
+
+  clearCache(): void {
+    try {
+      if (this.auth.isBrowser()) {
+        localStorage.removeItem('notifs_read_ids');
+      }
+    } catch {}
+    this.items.set([]);
+    this.page.set(0);
+    this.limit.set(10);
+    this.totalUnread.set(0);
+    this.hasMore.set(true);
+    this.expanded.set(new Set());
+    this.readIds.set(new Set());
   }
 
   private persistReadIds(): void {

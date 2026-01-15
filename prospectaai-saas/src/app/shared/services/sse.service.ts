@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { AuthService } from './auth.service';
 import { NotificationsService, NotificationItem } from './notifications.service';
 import { TasksService } from './tasks.service';
@@ -12,7 +12,7 @@ export class SseService {
   private isConnecting = false;
   private connected = false;
 
-  constructor(private auth: AuthService, private notifs: NotificationsService, private tasks: TasksService) {}
+  constructor(private auth: AuthService, private notifs: NotificationsService, private tasks: TasksService, private zone: NgZone) {}
 
   connect(): void {
     if (this.isConnecting) return;
@@ -123,14 +123,27 @@ export class SseService {
       try {
         const obj = JSON.parse(data) as NotificationItem;
         if (obj && obj.id) {
-          this.notifs.addNotification(obj);
+          this.zone.run(() => this.notifs.addNotification(obj));
         }
       } catch {}
     }
     if (eventName === 'COMPLETE_TASK_ON_PANEL') {
       try {
         const obj = JSON.parse(data) as AsyncTaskPanelDto;
-        this.tasks.upsertFromDto(obj);
+        this.zone.run(() => {
+          this.tasks.upsertFromDto(obj);
+          const notif: NotificationItem = {
+            id: `TASK:${obj.taskId}`,
+            title: obj.status === 'PROCESSED' ? 'Prospecção concluída' : 'Prospecção atualizada',
+            datetime: new Date().toISOString(),
+            sentLabel: 'Agora',
+            icon: obj.status === 'PROCESSED' ? 'CheckCircle2' : 'Loader2',
+            content: obj.query,
+            link: `/saas/result/${obj.taskId}`,
+            read: false
+          };
+          this.notifs.addNotification(notif);
+        });
       } catch {}
     }
     // Aqui podemos rotear outros eventos conforme necessário
