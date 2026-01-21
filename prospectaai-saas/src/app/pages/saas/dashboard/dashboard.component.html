@@ -24,9 +24,9 @@
     </div>
 
     <!-- Stats Grid -->
-    <div *ngIf="stats.length > 0; else statsEmpty" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div *ngIf="stats().length > 0; else statsEmpty" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <ui-card
-        *ngFor="let stat of stats; let i = index"
+        *ngFor="let stat of stats(); let i = index"
         class="glass-effect hover-lift border-0 shadow-glass"
       >
         <ui-card-header class="flex flex-row items-center justify-between pb-2">
@@ -71,21 +71,21 @@
         <ui-card-description>Suas últimas prospecções e resultados</ui-card-description>
       </ui-card-header>
       <ui-card-content>
-        <div *ngIf="recentSearches.length > 0; else emptyState" class="space-y-4">
+        <div *ngIf="recentSearchesList.length > 0; else emptyState" class="space-y-4">
           <div
-            *ngFor="let search of recentSearches"
+            *ngFor="let search of recentSearchesList"
             class="flex items-center justify-between p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
           >
             <div class="flex-1">
-              <h3 class="font-semibold text-foreground">{{ search.name }}</h3>
-              <p class="text-sm text-muted-foreground">{{ search.date }}</p>
+              <h3 class="font-semibold text-foreground">{{ search.query }}</h3>
+              <p class="text-sm text-muted-foreground">{{ search.createdAt | date:'short' }}</p>
             </div>
             <div class="flex items-center gap-4">
               <div class="text-right">
-                <p class="text-2xl font-bold text-primary">{{ search.results }}</p>
+                <p class="text-2xl font-bold text-primary">{{ search.resultsCount }}</p>
                 <p class="text-xs text-muted-foreground">resultados</p>
               </div>
-              <a routerLink="/saas/results">
+              <a [routerLink]="['/saas/result', search.taskId]">
                 <ui-button variant="ghost" size="sm" class="gap-2">
                   Ver detalhes
                   <i-lucide name="ArrowRight" class="h-4 w-4"></i-lucide>

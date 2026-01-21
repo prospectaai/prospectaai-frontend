@@ -1,5 +1,5 @@
 <layout-saas-main>
-  <div class="max-w-5xl mx-auto space-y-8">
+  <div class="max-w-6xl mx-auto space-y-8 animate-fade-in">
     <!-- Header da página -->
     <div class="relative overflow-hidden rounded-2xl gradient-hero p-8">
       <div class="relative z-10">
@@ -11,131 +11,210 @@
       </div>
     </div>
 
-    <!-- Conteúdo principal -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Sessão: Conta -->
-      <ui-card class="border-0">
-        <ui-card-header>
-          <div class="flex items-center gap-2">
+    <!-- Layout Flex: Menu Lateral + Conteúdo -->
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Sidebar Menu -->
+      <aside class="w-full lg:w-64 flex-shrink-0">
+        <nav class="space-y-1">
+          <button
+            (click)="activeTab.set('account')"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200"
+            [class.bg-primary-10]="activeTab() === 'account'"
+            [class.text-primary]="activeTab() === 'account'"
+            [class.text-muted-foreground]="activeTab() !== 'account'"
+            [class.hover:bg-muted]="activeTab() !== 'account'"
+          >
             <i-lucide name="User" class="w-4 h-4"></i-lucide>
-            <ui-card-title>Conta</ui-card-title>
-          </div>
-          <ui-card-description>Informações básicas do perfil</ui-card-description>
-        </ui-card-header>
-        <ui-card-content class="space-y-4">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full overflow-hidden border border-border/50 bg-primary/10 flex items-center justify-center">
-              <img *ngIf="avatarUrl()" [src]="avatarUrl()" alt="avatar" class="w-full h-full object-cover" />
-              <i-lucide *ngIf="!avatarUrl()" name="User" class="w-6 h-6 text-primary"></i-lucide>
-            </div>
-
-          </div>
-        </ui-card-content>
-      </ui-card>
-
-      <!-- Sessão: Preferências -->
-      <ui-card class="border-0">
-        <ui-card-header>
-          <div class="flex items-center gap-2">
+            Conta
+          </button>
+          <button
+            (click)="activeTab.set('preferences')"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200"
+            [class.bg-primary-10]="activeTab() === 'preferences'"
+            [class.text-primary]="activeTab() === 'preferences'"
+            [class.text-muted-foreground]="activeTab() !== 'preferences'"
+            [class.hover:bg-muted]="activeTab() !== 'preferences'"
+          >
             <i-lucide name="Settings" class="w-4 h-4"></i-lucide>
-            <ui-card-title>Preferências</ui-card-title>
-          </div>
-          <ui-card-description>Tema, idioma e notificações</ui-card-description>
-        </ui-card-header>
-        <ui-card-content class="space-y-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-sm font-medium">Tema</div>
-              <div class="text-xs text-muted-foreground">Claro/Escuro</div>
-            </div>
-            <ui-theme-toggle></ui-theme-toggle>
-          </div>
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-sm font-medium">Notificações do navegador</div>
-              <div class="text-xs text-muted-foreground">Sistema operacional</div>
-            </div>
-            <ui-toggle-button
-              [active]="notifs.enableBrowserNotifications()"
-              [onLabel]="'Habilitado'"
-              [offLabel]="'Desabilitado'"
-              [size]="'sm'"
-              (click)="notifs.toggleBrowserNotifications()"
-            ></ui-toggle-button>
-          </div>
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-sm font-medium">Sons de notificações</div>
-              <div class="text-xs text-muted-foreground">Alertas sonoros</div>
-            </div>
-            <ui-toggle-button
-              [active]="notifs.enableSound()"
-              [onLabel]="'Habilitado'"
-              [offLabel]="'Desabilitado'"
-              [size]="'sm'"
-              (click)="notifs.toggleSound()"
-            ></ui-toggle-button>
-          </div>
-        </ui-card-content>
-      </ui-card>
-
-      <!-- Sessão: Sessão/Logout -->
-      <ui-card class="border-0 shadow-none">
-        <ui-card-header>
-          <div class="flex items-center gap-2">
+            Preferências
+          </button>
+          <button
+            (click)="activeTab.set('subscription')"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200"
+            [class.bg-primary-10]="activeTab() === 'subscription'"
+            [class.text-primary]="activeTab() === 'subscription'"
+            [class.text-muted-foreground]="activeTab() !== 'subscription'"
+            [class.hover:bg-muted]="activeTab() !== 'subscription'"
+          >
+            <i-lucide name="CreditCard" class="w-4 h-4"></i-lucide>
+            Assinatura
+          </button>
+          <button
+            (click)="activeTab.set('session')"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200"
+            [class.bg-primary-10]="activeTab() === 'session'"
+            [class.text-primary]="activeTab() === 'session'"
+            [class.text-muted-foreground]="activeTab() !== 'session'"
+            [class.hover:bg-muted]="activeTab() !== 'session'"
+          >
             <i-lucide name="Key" class="w-4 h-4"></i-lucide>
-            <ui-card-title>Sessão</ui-card-title>
+            Sessão
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Content Area -->
+      <div class="flex-1 min-w-0">
+
+        <!-- Tab: Conta -->
+        <div *ngIf="activeTab() === 'account'" class="animate-fade-in space-y-6">
+          <div class="mb-4">
+            <h3 class="text-xl font-semibold text-foreground">Minha Conta</h3>
+            <p class="text-sm text-muted-foreground">Gerencie suas informações pessoais.</p>
           </div>
-          <ui-card-description>Gerencie sua sessão atual</ui-card-description>
-        </ui-card-header>
-        <ui-card-content>
-          <div class="flex items-center justify-between gap-4">
-            <p class="text-sm text-muted-foreground">Encerrar a sessão atual no dispositivo.</p>
-            <ui-button [variant]="'destructive'" [disabled]="isProcessing" (click)="openLogoutModal()">
-              {{ isProcessing ? 'Saindo...' : 'Logout' }}
-            </ui-button>
+          <ui-card class="border-0 shadow-sm">
+            <ui-card-content class="p-6 space-y-6">
+              <div class="flex items-center gap-6">
+                <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-border bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <img *ngIf="avatarUrl()" [src]="avatarUrl()" alt="avatar" class="w-full h-full object-cover" />
+                  <i-lucide *ngIf="!avatarUrl()" name="User" class="w-10 h-10 text-primary"></i-lucide>
+                </div>
+                <div class="space-y-1">
+                  <h4 class="text-lg font-medium">{{ displayName() || 'Usuário' }}</h4>
+                  <p class="text-sm text-muted-foreground">{{ email() || 'email@exemplo.com' }}</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-border/50">
+                <div class="space-y-1">
+                  <label class="text-xs font-medium text-muted-foreground uppercase">Nome de Exibição</label>
+                  <p class="text-sm font-medium">{{ displayName() || '-' }}</p>
+                </div>
+                <div class="space-y-1">
+                  <label class="text-xs font-medium text-muted-foreground uppercase">Email</label>
+                  <p class="text-sm font-medium">{{ email() || '-' }}</p>
+                </div>
+              </div>
+            </ui-card-content>
+          </ui-card>
+        </div>
+
+        <!-- Tab: Preferências -->
+        <div *ngIf="activeTab() === 'preferences'" class="animate-fade-in space-y-6">
+          <div class="mb-4">
+            <h3 class="text-xl font-semibold text-foreground">Preferências</h3>
+            <p class="text-sm text-muted-foreground">Personalize sua experiência no sistema.</p>
           </div>
-        </ui-card-content>
-      </ui-card>
+          <ui-card class="border-0 shadow-sm">
+            <ui-card-content class="p-6 space-y-6">
+              <div class="flex items-center justify-between pb-4 border-b border-border/50">
+                <div>
+                  <div class="text-base font-medium">Tema</div>
+                  <div class="text-sm text-muted-foreground">Alternar entre modo claro e escuro</div>
+                </div>
+                <ui-theme-toggle></ui-theme-toggle>
+              </div>
+              <div class="flex items-center justify-between pb-4 border-b border-border/50">
+                <div>
+                  <div class="text-base font-medium">Notificações do navegador</div>
+                  <div class="text-sm text-muted-foreground">Receber alertas no sistema operacional</div>
+                </div>
+                <ui-toggle-button
+                  [active]="notifs.enableBrowserNotifications()"
+                  [onLabel]="'Habilitado'"
+                  [offLabel]="'Desabilitado'"
+                  [size]="'sm'"
+                  (click)="notifs.toggleBrowserNotifications()"
+                ></ui-toggle-button>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-base font-medium">Sons de notificações</div>
+                  <div class="text-sm text-muted-foreground">Tocar som ao receber alertas</div>
+                </div>
+                <ui-toggle-button
+                  [active]="notifs.enableSound()"
+                  [onLabel]="'Habilitado'"
+                  [offLabel]="'Desabilitado'"
+                  [size]="'sm'"
+                  (click)="notifs.toggleSound()"
+                ></ui-toggle-button>
+              </div>
+            </ui-card-content>
+          </ui-card>
+        </div>
+
+        <!-- Tab: Assinatura -->
+        <div *ngIf="activeTab() === 'subscription'" class="animate-fade-in space-y-6">
+          <div class="mb-4">
+            <h3 class="text-xl font-semibold text-foreground">Assinatura</h3>
+            <p class="text-sm text-muted-foreground">Detalhes do seu plano e faturamento.</p>
+          </div>
+          <ui-card class="border-0 shadow-sm">
+            <ui-card-content class="p-6">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="rounded-xl border bg-muted/20 p-5">
+                  <div class="text-xs text-muted-foreground mb-1 uppercase tracking-wider">Plano Atual</div>
+                  <div class="text-lg font-bold text-primary">{{ subscriptionPlan() || '-' }}</div>
+                </div>
+                <div class="rounded-xl border bg-muted/20 p-5">
+                  <div class="text-xs text-muted-foreground mb-1 uppercase tracking-wider">Status</div>
+                  <div class="text-lg font-bold flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                    {{ subscriptionStatus() || '-' }}
+                  </div>
+                </div>
+                <div class="rounded-xl border bg-muted/20 p-5">
+                  <div class="text-xs text-muted-foreground mb-1 uppercase tracking-wider">Próxima Renovação</div>
+                  <div class="text-lg font-bold">{{ renewalDate() || '-' }}</div>
+                </div>
+              </div>
+
+              <div class="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-lg bg-muted/30">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <i-lucide name="Mail" class="w-5 h-5 text-primary"></i-lucide>
+                  </div>
+                  <div>
+                    <div class="text-sm font-medium">Email de Cobrança</div>
+                    <div class="text-xs text-muted-foreground">{{ billingEmail() || '-' }}</div>
+                  </div>
+                </div>
+                <ui-button [variant]="'default'" (click)="manageSubscription()" className="hover-lift text-white w-full md:w-auto">
+                  Gerenciar Assinatura
+                </ui-button>
+              </div>
+            </ui-card-content>
+          </ui-card>
+        </div>
+
+        <!-- Tab: Sessão -->
+        <div *ngIf="activeTab() === 'session'" class="animate-fade-in space-y-6">
+          <div class="mb-4">
+            <h3 class="text-xl font-semibold text-foreground">Sessão</h3>
+            <p class="text-sm text-muted-foreground">Gerencie o acesso à sua conta.</p>
+          </div>
+          <ui-card class="border-0 shadow-sm">
+            <ui-card-content class="p-6">
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div class="space-y-1">
+                  <h4 class="font-medium text-destructive flex items-center gap-2">
+                    <i-lucide name="LogOut" class="w-4 h-4"></i-lucide>
+                    Encerrar Sessão
+                  </h4>
+                  <p class="text-sm text-muted-foreground max-w-md">
+                    Isso desconectará sua conta deste dispositivo. Você precisará fazer login novamente para acessar.
+                  </p>
+                </div>
+                <ui-button [variant]="'destructive'" [disabled]="isProcessing" (click)="openLogoutModal()" className="w-full sm:w-auto">
+                  {{ isProcessing ? 'Saindo...' : 'Sair da Conta' }}
+                </ui-button>
+              </div>
+            </ui-card-content>
+          </ui-card>
+        </div>
+
+      </div>
     </div>
-
-    <!-- Sessão: Assinatura -->
-    <ui-card class="border-0">
-      <ui-card-header>
-        <ui-card-title class="flex items-center gap-2">
-          <i-lucide name="CreditCard" class="w-4 h-4"></i-lucide>
-          Assinatura
-        </ui-card-title>
-        <ui-card-description>Detalhes do seu plano e ciclo de cobrança</ui-card-description>
-      </ui-card-header>
-      <ui-card-content>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="rounded-lg border bg-card p-4">
-            <div class="text-xs text-muted-foreground">Plano</div>
-            <div class="text-sm font-semibold">{{ subscriptionPlan() || '-' }}</div>
-          </div>
-          <div class="rounded-lg border bg-card p-4">
-            <div class="text-xs text-muted-foreground">Status</div>
-            <div class="text-sm font-semibold flex items-center gap-2">
-              <i-lucide name="Check" class="w-4 h-4 text-green-600"></i-lucide>
-              {{ subscriptionStatus() || '-' }}
-            </div>
-          </div>
-          <div class="rounded-lg border bg-card p-4">
-            <div class="text-xs text-muted-foreground">Renovação</div>
-            <div class="text-sm font-semibold flex items-center gap-2">
-              <i-lucide name="Calendar" class="w-4 h-4"></i-lucide>
-              {{ renewalDate() || '-' }}
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6 flex items-center gap-3 justify-between w-full">
-          <ui-button [variant]="'default'" (click)="manageSubscription()" className="hover-lift text-white">Gerenciar assinatura</ui-button>
-          <span class="text-xs text-muted-foreground">Cobrança vinculada a: {{ billingEmail() || '-' }}</span>
-        </div>
-      </ui-card-content>
-    </ui-card>
   </div>
 </layout-saas-main>
 

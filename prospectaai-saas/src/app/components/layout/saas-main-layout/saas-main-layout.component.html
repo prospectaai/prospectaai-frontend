@@ -48,8 +48,8 @@
     <div class="flex items-center gap-2 relative">
       <button type="button" class="relative p-2 rounded-md hover:bg-muted/50" (click)="toggleNotifications()">
         <i-lucide name="Bell" class="w-5 h-5"></i-lucide>
-        <span *ngIf="notifs.getUnreadCount() > 0" class="absolute -top-1 -right-1 text-[10px] px-1.5 py-0.5 rounded-full bg-red-600 text-white">
-          {{ notifs.getUnreadCount() }}
+        <span *ngIf="notifs.totalUnreadSig() > 0" class="absolute -top-1 -right-1 text-[10px] px-1.5 py-0.5 rounded-full bg-red-600 text-white">
+          {{ notifs.totalUnreadSig() }}
         </span>
       </button>
       <div *ngIf="notificationsOpen()" class="absolute right-12 top-10 z-50 w-80 rounded-md border bg-popover text-popover-foreground shadow-md">
@@ -62,7 +62,7 @@
             <li *ngFor="let n of notifs.itemsSig(); trackBy: trackById" class="block w-full min-h-12">
               <details [open]="isExpanded(n.id)" (toggle)="onDetailsToggle(n.id, $event)" class="block">
                 <summary class="list-none w-full flex items-start gap-3 px-3 py-3 cursor-pointer select-none hover:bg-muted/50 focus:outline-none focus:bg-muted/50">
-                  <i-lucide [name]="n.icon || 'Bell'" class="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground"></i-lucide>
+                  <i-lucide name="Bell" class="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground"></i-lucide>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-2">
                       <span class="text-sm font-medium truncate"
@@ -129,4 +129,5 @@
     <ng-content></ng-content>
     <saas-tasks-accordion></saas-tasks-accordion>
   </main>
+  <app-toast-container></app-toast-container>
 </div>

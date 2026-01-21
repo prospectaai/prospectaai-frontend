@@ -11,6 +11,7 @@ import { SaasMainLayoutComponent } from "../../../components/layout/saas-main-la
 import { ProspectionsService, ProspectionSummaryDto } from '../../../shared/services/prospections.service';
 import { TasksService } from '../../../shared/services/tasks.service';
 import { SelectComponent } from '../../../components/ui/select/select.component';
+import { ModalComponent } from '../../../components/ui/modal/modal.component';
 
 @Component({
   selector: 'app-resultados',
@@ -23,15 +24,8 @@ import { SelectComponent } from '../../../components/ui/select/select.component'
     BadgeComponent,
     LucideAngularModule,
     SelectComponent,
-    RouterLink
-    // Download,
-    // Search,
-    // Filter,
-    // MapPin,
-    // Phone,
-    // Mail,
-    // ExternalLink
-    ,
+    RouterLink,
+    ModalComponent,
     SaasMainLayoutComponent
 ],
   templateUrl: './resultados.component.html',
@@ -45,6 +39,12 @@ export class ResultadosComponent implements OnInit {
   readonly pageSize = 6;
   showFilters = signal<boolean>(false);
   readonly titleMaxChars = 45;
+
+  // Delete Modal State
+  showDeleteModal = signal(false);
+  deleteTarget = signal<number | 'ALL' | null>(null);
+  isDeleting = signal(false);
+
   eff = effect(() => {
     this.loading.set(this.prospections.loadingSummariesSig());
     this.items.set(this.prospections.getSummaries());
@@ -75,6 +75,7 @@ export class ResultadosComponent implements OnInit {
     }, 8000);
   }
 
+  // ... (existing filter getters) ...
   get filteredCompanies() {
     const searchTerm = this.searchForm.get('searchTerm')?.value || '';
     const term = this.normalizeText(String(searchTerm || '').trim().toLowerCase());
@@ -92,6 +93,8 @@ export class ResultadosComponent implements OnInit {
     }
     if (fStatus) {
       filtered = filtered.filter(c => (c.status || '').toLowerCase() === fStatus.toLowerCase());
+    } else {
+      filtered = filtered.filter(c => c.status === 'PROCESSED');
     }
     if (fFrom) {
       const fromTime = new Date(fFrom).getTime();
@@ -101,6 +104,7 @@ export class ResultadosComponent implements OnInit {
       const toTime = new Date(fTo).getTime();
       filtered = filtered.filter(c => new Date(c.createdAt || '').getTime() <= toTime);
     }
+    filtered = filtered.filter(c => (c.resultsCount || 0) > 0);
     const sorted = [...filtered].sort((a, b) => {
       const ta = new Date(a.createdAt || '').getTime();
       const tb = new Date(b.createdAt || '').getTime();
@@ -144,6 +148,41 @@ export class ResultadosComponent implements OnInit {
     this.page.set(Math.min(this.pageCount, Math.max(1, p)));
   }
 
+  goToEntry(entry: number | '...'): void {
+    if (typeof entry === 'number') {
+      this.goToPage(entry);
+    }
+  }
+
+  get showFirstPageDots(): boolean {
+    return this.pageCount > 5 && this.page() > 5;
+  }
+
+  get pagesWindow(): (number | '...')[] {
+    const total = this.pageCount;
+    if (total <= 0) return [];
+    const current = Math.min(Math.max(this.page(), 1), total);
+    const pages: (number | '...')[] = [];
+    if (current <= 5) {
+      const end = Math.min(current === 1 ? 5 : 6, total);
+      for (let i = 1; i <= end; i++) pages.push(i);
+      if (end < total) {
+        pages.push('...');
+        pages.push(total);
+      }
+      return pages;
+    }
+    const base = Math.floor((current - 1) / 5) * 5 + 1;
+    const windowStart = current % 5 === 0 ? current : base;
+    const windowEnd = Math.min(windowStart + 4, total);
+    for (let i = windowStart; i <= windowEnd; i++) pages.push(i);
+    if (windowEnd < total) {
+      pages.push('...');
+      pages.push(total);
+    }
+    return pages;
+  }
+
   formatDate(dt: string): string {
     try {
       const d = new Date(dt);
@@ -165,5 +204,53 @@ export class ResultadosComponent implements OnInit {
     const s = String(q || '');
     if (s.length <= this.titleMaxChars) return s;
     return s.slice(0, this.titleMaxChars - 3) + '...';
+  }
+
+  // Delete Actions
+  confirmDelete(id: number) {
+    this.deleteTarget.set(id);
+    this.showDeleteModal.set(true);
+  }
+
+  confirmDeleteAll() {
+    this.deleteTarget.set('ALL');
+    this.showDeleteModal.set(true);
+  }
+
+  cancelDelete() {
+    this.showDeleteModal.set(false);
+    this.deleteTarget.set(null);
+  }
+
+  executeDelete() {
+    const target = this.deleteTarget();
+    if (!target) return;
+
+    this.isDeleting.set(true);
+    if (target === 'ALL') {
+      this.prospections.deleteAllProspection().subscribe({
+        next: () => {
+          this.prospections.loadAllSummaries();
+          this.isDeleting.set(false);
+          this.cancelDelete();
+        },
+        error: () => {
+          this.isDeleting.set(false);
+          alert('Erro ao deletar todas as prospecções.');
+        }
+      });
+    } else {
+      this.prospections.deleteProspection(target).subscribe({
+        next: () => {
+          this.prospections.loadAllSummaries();
+          this.isDeleting.set(false);
+          this.cancelDelete();
+        },
+        error: () => {
+          this.isDeleting.set(false);
+          alert('Erro ao deletar prospecção.');
+        }
+      });
+    }
   }
 }

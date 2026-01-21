@@ -22,9 +22,6 @@ import { ToggleButtonComponent } from '../../../components/ui/toggle-button/togg
     CommonModule,
     SaasMainLayoutComponent,
     CardComponent,
-    CardHeaderComponent,
-    CardTitleComponent,
-    CardDescriptionComponent,
     CardContentComponent,
     ButtonComponent,
     LucideAngularModule,
@@ -45,6 +42,9 @@ export class ConfiguracoesComponent implements OnInit {
   email = signal<string>('');
   avatarUrl = signal<string>('');
   showLogoutModal = signal(false);
+
+  // New: Active Tab State
+  activeTab = signal<'account' | 'preferences' | 'subscription' | 'session'>('account');
 
   constructor(private auth: AuthService, private router: Router, public notifs: NotificationsService) {
     const profile = this.auth.getUserProfile();

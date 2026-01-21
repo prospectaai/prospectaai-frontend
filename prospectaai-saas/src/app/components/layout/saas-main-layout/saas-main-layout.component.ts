@@ -6,11 +6,12 @@ import { AuthService, UserProfileResponse } from '../../../shared/services/auth.
 import { NotificationsService, NotificationItem } from '../../../shared/services/notifications.service';
 import { SaasTasksAccordionComponent } from '../saas-tasks-accordion/saas-tasks-accordion.component';
 import { TasksService } from '../../../shared/services/tasks.service';
+import { ToastContainerComponent } from '../../ui/toast-container/toast-container.component';
 
 @Component({
   selector: 'layout-saas-main',
   standalone: true,
-  imports: [RouterLink, RouterModule, CommonModule, LucideAngularModule, SaasTasksAccordionComponent],
+  imports: [RouterLink, RouterModule, CommonModule, LucideAngularModule, SaasTasksAccordionComponent, ToastContainerComponent],
   templateUrl: './saas-main-layout.component.html',
   styleUrl: './saas-main-layout.component.css'
 })

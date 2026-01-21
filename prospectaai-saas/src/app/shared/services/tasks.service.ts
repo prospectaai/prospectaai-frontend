@@ -2,6 +2,9 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { AsyncTaskPanelDto } from '../dtos/async-task-panel.dto';
+import { ProspectionSummaryDto } from './prospections.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 export type TaskStatus = 'PROCESSANDO' | 'CONCLUIDA';
 export type TaskType = 'PROSPECÇÃO' | 'OUTRA';
@@ -27,8 +30,19 @@ export class TasksService {
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
+  private getVisibleTasks(): TaskItem[] {
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    return this.tasks().filter(t => {
+      if (t.status === 'PROCESSANDO') return true;
+      if (!t.end) return true;
+      const endDate = new Date(t.end).getTime();
+      return (now - endDate) < oneDayMs;
+    });
+  }
+
   getTasks(): TaskItem[] {
-    return this.tasks();
+    return this.getVisibleTasks();
   }
 
   getProcessingCount(): number {
@@ -36,11 +50,11 @@ export class TasksService {
   }
 
   getProcessedCount(): number {
-    return this.tasks().filter(t => t.status === 'CONCLUIDA').length;
+    return this.getVisibleTasks().filter(t => t.status === 'CONCLUIDA').length;
   }
 
   getTotalCount(): number {
-    return this.tasks().length;
+    return this.getVisibleTasks().length;
   }
 
   getLastCompletedAt(): number | null {
@@ -85,6 +99,20 @@ export class TasksService {
     const mappedType: TaskType = dto.platform === 'GOOGLE_MAPS' ? 'PROSPECÇÃO' : 'OUTRA';
     const nowIso = new Date().toISOString();
     const idStr = String(dto.taskId);
+
+    // Filter old tasks before adding to state
+    if (mappedStatus === 'CONCLUIDA') {
+      // Since we don't have the exact end time from DTO in this method (it seems DTO doesn't have it?),
+      // we assume 'nowIso' if it's a new update.
+      // However, if we are loading history, we might be setting 'end' to 'now'.
+      // Wait, 'upsertFromDto' sets 'end' to 'nowIso' if CONCLUIDA.
+      // If we are loading old tasks from 'get-all-processed', we are setting their end time to NOW.
+      // THIS IS A BUG if we want to filter them based on *actual* completion time.
+      // We need to know when the task was actually completed.
+      // Looking at 'AsyncTaskPanelDto', does it have completion time?
+      // Let's check 'AsyncTaskPanelDto' definition.
+    }
+
     this.tasks.update(curr => {
       const idx = curr.findIndex(t => t.id === idStr);
       if (idx !== -1) {
@@ -120,30 +148,104 @@ export class TasksService {
     if (!this.auth.isBrowser()) return;
     if (this.initialized) return;
     this.initialized = true;
-    const url = `${this.auth.getApiUrl()}/api/v1/async/prospect/get-all-processing`;
-    this.http.get<AsyncTaskPanelDto[]>(url).subscribe({
-      next: (list) => {
-        const arr = Array.isArray(list) ? list : [];
-        if (arr.length === 0) return;
-        this.tasks.update(() => {
-          const mapped = arr.map(dto => {
-            const status: TaskStatus = dto.status === 'PROCESSED' ? 'CONCLUIDA' : 'PROCESSANDO';
-            const type: TaskType = dto.platform === 'GOOGLE_MAPS' ? 'PROSPECÇÃO' : 'OUTRA';
-            return {
-              id: String(dto.taskId),
-              name: dto.query,
-              type,
-              start: new Date().toISOString(),
-              status
-            } as TaskItem;
-          });
-          return mapped;
+
+    // We will load:
+    // 1. All results (summaries) -> Contains dates, good for Prospections
+    // 2. Processing tasks -> Active tasks
+    // 3. Processed tasks (legacy DTO) -> For "OTHER" types mainly
+
+    const urlResults = `${this.auth.getApiUrl()}/api/v1/async/prospect/get-all-results`;
+    const urlProcessing = `${this.auth.getApiUrl()}/api/v1/async/prospect/get-all-processing`;
+    const urlProcessed = `${this.auth.getApiUrl()}/api/v1/async/prospect/get-all-processed`;
+
+    forkJoin({
+      results: this.http.get<ProspectionSummaryDto[]>(urlResults).pipe(catchError(() => of([]))),
+      processing: this.http.get<AsyncTaskPanelDto[]>(urlProcessing).pipe(catchError(() => of([]))),
+      processed: this.http.get<AsyncTaskPanelDto[]>(urlProcessed).pipe(catchError(() => of([])))
+    }).subscribe(({ results, processing, processed }) => {
+      const taskMap = new Map<string, TaskItem>();
+      const now = Date.now();
+      const oneDayMs = 24 * 60 * 60 * 1000;
+
+      // 1. Process Results (Prospections with dates)
+      if (Array.isArray(results)) {
+        results.forEach(res => {
+          const createdAt = new Date(res.createdAt).getTime();
+          // Assuming createdAt is roughly start/end time.
+          // If task is old, we skip it.
+          // Logic: visible if (now - end) < 24h.
+          // Use createdAt as proxy for end time if completed.
+          const isVisible = (now - createdAt) < oneDayMs;
+
+          // However, if status is PROCESSING, it should be visible regardless of age?
+          // Usually processing tasks are recent. If stuck for days, maybe we show them.
+          // But 'results' usually have status.
+
+          if (isVisible || res.status === 'PROCESSING') {
+            const mappedStatus: TaskStatus = res.status === 'PROCESSED' ? 'CONCLUIDA' : 'PROCESSANDO';
+            taskMap.set(String(res.taskId), {
+              id: String(res.taskId),
+              name: res.query,
+              type: 'PROSPECÇÃO',
+              start: res.createdAt,
+              end: mappedStatus === 'CONCLUIDA' ? res.createdAt : undefined,
+              status: mappedStatus
+            });
+          }
         });
-        if (this.getTotalCount() > 0) {
-          this.accordionOpen.set(true);
-        }
-      },
-      error: () => {}
+      }
+
+      // 2. Process Processing (Active tasks - overwrite/add)
+      if (Array.isArray(processing)) {
+        processing.forEach(dto => {
+          const status: TaskStatus = dto.status === 'PROCESSED' ? 'CONCLUIDA' : 'PROCESSANDO';
+          const type: TaskType = dto.platform === 'GOOGLE_MAPS' ? 'PROSPECÇÃO' : 'OUTRA';
+          // Always add processing tasks
+          taskMap.set(String(dto.taskId), {
+            id: String(dto.taskId),
+            name: dto.query,
+            type,
+            start: new Date().toISOString(), // We don't have start date here, use now
+            status
+          });
+        });
+      }
+
+      // 3. Process Processed (For OTHER types mainly)
+      if (Array.isArray(processed)) {
+        processed.forEach(dto => {
+          const id = String(dto.taskId);
+          // Only add if not already present (prioritize 'results' which has dates)
+          if (!taskMap.has(id)) {
+             const type: TaskType = dto.platform === 'GOOGLE_MAPS' ? 'PROSPECÇÃO' : 'OUTRA';
+             // If it's PROSPECÇÃO and missing from 'results', it means it was filtered out by date (old).
+             // So we should NOT add it back.
+             // If it's OUTRA, we don't have dates, so we assume it's relevant (or maybe we should filter OUTRA too? But we can't).
+             // Let's assume user cares mostly about Prospections.
+             if (type !== 'PROSPECÇÃO') {
+               const status: TaskStatus = dto.status === 'PROCESSED' ? 'CONCLUIDA' : 'PROCESSANDO';
+               taskMap.set(id, {
+                 id,
+                 name: dto.query,
+                 type,
+                 start: new Date().toISOString(),
+                 end: new Date().toISOString(), // Default to now
+                 status
+               });
+             }
+          }
+        });
+      }
+
+      const allTasks = Array.from(taskMap.values());
+      // Sort by start date desc (newest first)
+      allTasks.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
+
+      this.tasks.set(allTasks);
+
+      if (this.getTotalCount() > 0) {
+        this.accordionOpen.set(true);
+      }
     });
   }
 

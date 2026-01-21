@@ -163,7 +163,8 @@ export class AuthService {
     location?: string;
     businessType?: string;
     radiusKm?: number;
-    companySize?: string;
+    latitude?: number;
+    longitude?: number;
   }): Observable<any> {
     const token = this.getToken();
     if (!token || this.isTokenExpired()) {

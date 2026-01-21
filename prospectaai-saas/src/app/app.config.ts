@@ -8,7 +8,7 @@ import { throwError } from 'rxjs';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { ArrowRight, ArrowLeft, BarChart3, Building2, Calendar, Check, ChevronDown, ChevronUp, Chrome, CreditCard, Download, ExternalLink, Filter, Github, Globe, Key, Lock, LucideAngularModule, Mail, MapPin, Menu, Phone, RectangleGogglesIcon, Search, Settings, Star, Target, TrendingUp, User, Users, X, Zap, AlertTriangle, Info, CheckCircle, XCircle, Package, DollarSign, Clock, Loader2, CheckCircle2, Headphones, RotateCcw, Moon, Sun, Bell, Trash, MessageCircle } from 'lucide-angular';
+import { ArrowRight, ArrowLeft, BarChart3, Building2, Calendar, Check, ChevronDown, ChevronUp, Chrome, CreditCard, Download, ExternalLink, Filter, Github, Globe, Key, Lock, LucideAngularModule, Mail, MapPin, Menu, Phone, RectangleGogglesIcon, Search, Settings, Star, Target, TrendingUp, User, Users, X, Zap, AlertTriangle, Info, CheckCircle, XCircle, Package, DollarSign, Clock, Loader2, CheckCircle2, Headphones, RotateCcw, Moon, Sun, Bell, Trash, MessageCircle, LogOut, Plus } from 'lucide-angular';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +21,8 @@ export const appConfig: ApplicationConfig = {
         (req, next) => {
           const auth = inject(AuthService);
           const url = req.url;
+          const apiBase = auth['API_URL'] || '';
+          const isExternal = apiBase && !url.startsWith(apiBase);
           const isAuthEndpoint =
             url.includes('/api/v1/auth/') ||
             url.includes('/oauth2/authorization') ||
@@ -33,6 +35,10 @@ export const appConfig: ApplicationConfig = {
 
           const token = auth.getToken();
           const expired = auth.isTokenExpired();
+
+          if (isExternal) {
+            return next(req);
+          }
 
           if (!isAuthEndpoint) {
             return auth.validateToken().pipe(
@@ -86,7 +92,7 @@ export const appConfig: ApplicationConfig = {
         ArrowRight, MapPin, Calendar, ChevronDown, ChevronUp, Search, Building2, Filter, Menu,
         Settings, Download, Phone, ExternalLink, Github, Chrome, CreditCard, Key, X, AlertTriangle, Info,
         ArrowLeft, CheckCircle, XCircle, Package, DollarSign, Clock, Loader2, CheckCircle2, Headphones, RotateCcw,
-        Moon, Sun, Bell, Trash, MessageCircle
+        Moon, Sun, Bell, Trash, MessageCircle, LogOut, Plus
       })
     )
   ]

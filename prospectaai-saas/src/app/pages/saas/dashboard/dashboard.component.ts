@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, effect } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../../../shared/services/auth.service';
 import { SaasMainLayoutComponent } from '../../../components/layout/saas-main-layout/saas-main-layout.component';
@@ -10,6 +10,9 @@ import { CardContentComponent } from '../../../components/ui/card-content/card-c
 import { CardTitleComponent } from '../../../components/ui/card-title/card-title.component';
 import { CardDescriptionComponent } from '../../../components/ui/card-description/card-description.component';
 import { LucideAngularModule } from 'lucide-angular';
+import { ProspectionsService, ProspectionSummaryDto } from '../../../shared/services/prospections.service';
+import { TasksService } from '../../../shared/services/tasks.service';
+import { AnalyticsOverviewDto } from '../../../shared/dtos/analytics-overview.dto';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,43 +32,18 @@ import { LucideAngularModule } from 'lucide-angular';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardPageComponent implements OnInit {
+  analytics = signal<AnalyticsOverviewDto | null>(null);
+  recentSearches = signal<ProspectionSummaryDto[]>([]);
+  loading = signal<boolean>(true);
+
   constructor(
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private prospectionsService: ProspectionsService,
+    private tasks: TasksService
   ) {}
 
- stats = [
-    {
-      title: 'Empresas Prospectadas',
-      value: '1,234',
-      change: '+12% este mês',
-      icon: 'Users',
-    },
-    {
-      title: 'Buscas Ativas',
-      value: '8',
-      change: '3 agendadas',
-      icon: 'Calendar',
-    },
-    {
-      title: 'Taxa de Sucesso',
-      value: '87%',
-      change: '+5% vs. mês anterior',
-      icon: 'TrendingUp',
-    },
-    {
-      title: 'Localizações',
-      value: '15',
-      change: '5 cidades',
-      icon: 'MapPin',
-    },
-  ];
-
-  recentSearches = [
-    { id: 1, name: 'Restaurantes em São Paulo', date: 'Hoje, 14:30', results: 45 },
-    { id: 2, name: 'Academias no Rio de Janeiro', date: 'Ontem, 09:15', results: 32 },
-    { id: 3, name: 'Clínicas em Belo Horizonte', date: '2 dias atrás', results: 28 },
-  ];
+  stats = signal<any[]>([]);
 
   ngOnInit(): void {
     // Se foi aberto no popup, devolve o token ao opener e fecha (apenas no browser)
@@ -82,5 +60,79 @@ export class DashboardPageComponent implements OnInit {
       }
       return;
     }
+
+    this.loadData();
+
+    effect(() => {
+      const doneAt = this.tasks.getLastCompletedAt();
+      if (doneAt) {
+        this.prospectionsService.getAnalyticsOverview().subscribe({
+          next: (data) => {
+            this.analytics.set(data);
+            this.updateStats(data);
+          },
+          error: () => {}
+        });
+        this.prospectionsService.loadAllSummaries();
+      }
+    });
+  }
+
+  loadData() {
+    this.loading.set(true);
+    // Load Analytics
+    this.prospectionsService.getAnalyticsOverview().subscribe({
+      next: (data) => {
+        this.analytics.set(data);
+        this.updateStats(data);
+      },
+      error: () => {
+        // Fallback or empty state
+      }
+    });
+
+    // Load Recent Searches
+    this.prospectionsService.loadAllSummaries();
+    // Watch for summaries updates
+    // Since summaries is a signal in service, we can effect or just grab it?
+    // Ideally we should use the service signal directly in template or computed
+    // But for now let's just use what we have.
+    // ProspectionsService exposes summariesSig.
+  }
+
+  // Computed signal for stats would be better, but let's keep it simple with update method for now
+  updateStats(data: AnalyticsOverviewDto) {
+    this.stats.set([
+      {
+        title: 'Empresas Prospectadas',
+        value: data.empresasProspectadasTotal.toLocaleString(),
+        change: `${data.empresasProspectadasVariationPercentMonth > 0 ? '+' : ''}${data.empresasProspectadasVariationPercentMonth}% este mês`,
+        icon: 'Users',
+      },
+      {
+        title: 'Buscas Ativas',
+        value: data.buscasAtivasTotal.toString(),
+        change: `${data.buscasAgendadas} agendadas`,
+        icon: 'Calendar',
+      },
+      {
+        title: 'Cidades Alcançadas',
+        value: data.cidadesTotal.toString(),
+        change: 'Expansão geográfica',
+        icon: 'MapPin',
+      },
+      {
+        title: 'Localizações',
+        value: data.localizacoesTotal.toLocaleString(),
+        change: 'Total mapeado',
+        icon: 'Globe',
+      },
+    ]);
+  }
+
+  get recentSearchesList() {
+    const arr = this.prospectionsService.summariesSig();
+    const filtered = arr.filter(s => s.status === 'PROCESSED' && (s.resultsCount || 0) > 0);
+    return filtered.slice(0, 5);
   }
 }

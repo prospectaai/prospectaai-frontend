@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { ToastService } from './toast.service';
 
 export interface NotificationItem {
   id: string;
@@ -26,8 +27,8 @@ export class NotificationsService {
   private page = signal<number>(0);
   private limit = signal<number>(10);
   private totalUnread = signal<number>(0);
-  private isLoading = signal<boolean>(false);
-  private hasMore = signal<boolean>(true);
+  public isLoading = signal<boolean>(false);
+  public hasMore = signal<boolean>(true);
   private expanded = signal<Set<string>>(new Set());
   private readIds = signal<Set<string>>(new Set());
 
@@ -35,6 +36,7 @@ export class NotificationsService {
   enableSound = signal<boolean>(true);
 
   public itemsSig = this.items.asReadonly();
+  public totalUnreadSig = this.totalUnread.asReadonly();
 
   getUnreadCount(): number {
     return this.totalUnread();
@@ -123,7 +125,7 @@ export class NotificationsService {
     this.fetchPage(nextPage, this.limit());
   }
 
-  constructor(private http: HttpClient, private auth: AuthService) {
+  constructor(private http: HttpClient, private auth: AuthService, private toast: ToastService) {
     this.loadReadIds();
   }
 
@@ -157,7 +159,14 @@ export class NotificationsService {
         totalUnread = items.filter(n => !n.read).length;
         if (items.length < limit) this.hasMore.set(false);
         this.page.set(page);
-        this.items.update(curr => curr.concat(items));
+
+        this.items.update(curr => {
+          // Merge to avoid duplicates
+          const existingIds = new Set(curr.map(i => i.id));
+          const newItems = items.filter(i => !existingIds.has(i.id));
+          return [...curr, ...newItems];
+        });
+
         this.totalUnread.set(totalUnread);
       },
       error: () => {},
@@ -182,6 +191,14 @@ export class NotificationsService {
     this.totalUnread.set(unread);
     this.playSound();
     this.showOsNotification(mapped);
+
+    // Show in-app toast
+    this.toast.show({
+      type: 'info',
+      title: mapped.title,
+      message: mapped.content || mapped.sentLabel,
+      duration: 5000
+    });
   }
 
   clearCache(): void {
@@ -192,7 +209,7 @@ export class NotificationsService {
     } catch {}
     this.items.set([]);
     this.page.set(0);
-    this.limit.set(10);
+    this.limit.set(50);
     this.totalUnread.set(0);
     this.hasMore.set(true);
     this.expanded.set(new Set());

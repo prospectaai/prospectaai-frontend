@@ -36,6 +36,8 @@ export class SliderComponent implements ControlValueAccessor {
     const newValue = [parseInt(input.value, 10)];
     this.value = newValue;
     this.valueChange.emit(this.value);
+    this.onChange(this.value);
+    this.onTouched();
   }
 
   /** Funções do ControlValueAccessor */
@@ -43,8 +45,14 @@ export class SliderComponent implements ControlValueAccessor {
   onTouched = () => {};
 
   /** Escreve valor vindo do form control */
-  writeValue(value: number[]): void {
-    this.value = value || [this.min];
+  writeValue(value: number[] | number | null | undefined): void {
+    if (Array.isArray(value) && typeof value[0] === 'number') {
+      this.value = value as number[];
+    } else if (typeof value === 'number') {
+      this.value = [value];
+    } else {
+      this.value = [this.min];
+    }
   }
 
   /** Registra função para propagar mudança */
@@ -55,6 +63,11 @@ export class SliderComponent implements ControlValueAccessor {
   /** Registra função de toque */
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
+  }
+
+  /** Define estado desabilitado */
+  setDisabledState?(isDisabled: boolean): void {
+    // opcional: poderia controlar estilos/estado
   }
 
   /** Calcula a largura da faixa preenchida */

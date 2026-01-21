@@ -29,53 +29,91 @@
             <h2 class="font-semibold text-lg">Resultados ({{ detail()?.resultsCount || 0 }})</h2>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ui-card *ngFor="let r of pagedResults()" class="glass-effect border-0 shadow-glass hover-lift">
-              <div class="p-4 space-y-3 text-sm">
-                <div class="flex items-center justify-between">
-                  <p class="text-base font-semibold truncate">{{ r.nomeEmpresa }}</p>
-                  <div class="flex items-center gap-1 text-yellow-500" *ngIf="r.rating">
-                    <span class="text-sm font-semibold">{{ r.rating }}</span>
-                    <span class="text-xs">★</span>
+          <ng-container *ngIf="(detail()?.resultsCount || 0) > 0; else emptyResults">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ui-card *ngFor="let r of pagedResults()" class="glass-effect border-0 shadow-glass hover-lift">
+                <div class="p-4 space-y-3 text-sm">
+                  <div class="flex items-center justify-between">
+                    <p class="text-base font-semibold truncate">{{ r.nomeEmpresa }}</p>
+                    <div class="flex items-center gap-1 text-yellow-500" *ngIf="r.rating">
+                      <span class="text-sm font-semibold">{{ r.rating }}</span>
+                      <span class="text-xs">★</span>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <i-lucide name="MapPin" class="h-4 w-4 text-primary mt-0.5"></i-lucide>
+                    <span class="text-muted-foreground">{{ r.endereco || '—' }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <i-lucide name="Phone" class="h-4 w-4 text-primary"></i-lucide>
+                    <span class="text-muted-foreground">{{ r.telefone || '—' }}</span>
+                    <a *ngIf="r.telefone" [href]="whatsappLink(r.telefone)" target="_blank" rel="noopener" class="ml-1 text-green-600 hover:text-green-700" aria-label="Abrir WhatsApp">
+                      <i-lucide name="MessageCircle" class="h-4 w-4"></i-lucide>
+                    </a>
+                  </div>
+                  <div class="flex items-center gap-2 min-w-0" *ngIf="r.website">
+                    <i-lucide name="ExternalLink" class="h-4 w-4 text-primary"></i-lucide>
+                    <a [href]="r.website" target="_blank" rel="noopener" class="text-primary text-xs hover:underline flex-1 min-w-0 truncate">{{ r.website }}</a>
                   </div>
                 </div>
-                <div class="flex items-start gap-2">
-                  <i-lucide name="MapPin" class="h-4 w-4 text-primary mt-0.5"></i-lucide>
-                  <span class="text-muted-foreground">{{ r.endereco || '—' }}</span>
+              </ui-card>
+            </div>
+            <div class="flex justify-center pt-6" *ngIf="(detail()?.results?.length || 0) > 0">
+              <ui-card class="glass-effect border-0 shadow-glass" [class.opacity-60]="pageCount <= 1">
+                <div class="p-4 flex items-center gap-2">
+                  <ui-button variant="outline" size="sm" (click)="prevPage()" [disabled]="page() <= 1">Anterior</ui-button>
+                  <div class="flex gap-1">
+                    <ng-container *ngIf="showFirstPageDots">
+                      <ui-button
+                        [variant]="1 === page() ? 'default' : 'outline'"
+                        size="sm"
+                        className="text-white"
+                        (click)="goToPage(1)"
+                      >
+                        1
+                      </ui-button>
+                      <span class="px-2 text-muted-foreground">...</span>
+                    </ng-container>
+                    <ng-container *ngFor="let entry of pagesWindow">
+                      <ui-button
+                        *ngIf="entry !== '...'; else dotsTpl"
+                        [variant]="entry === page() ? 'default' : 'outline'"
+                        size="sm"
+                        className="text-white"
+                        (click)="goToEntry(entry)"
+                      >
+                        {{ entry }}
+                      </ui-button>
+                    </ng-container>
+                    <ng-template #dotsTpl>
+                      <span class="px-2 text-muted-foreground">...</span>
+                    </ng-template>
+                  </div>
+                  <ui-button variant="outline" size="sm" (click)="nextPage()" [disabled]="page() >= pageCount">Próximo</ui-button>
                 </div>
-                <div class="flex items-center gap-2">
-                  <i-lucide name="Phone" class="h-4 w-4 text-primary"></i-lucide>
-                  <span class="text-muted-foreground">{{ r.telefone || '—' }}</span>
-                  <a *ngIf="r.telefone" [href]="whatsappLink(r.telefone)" target="_blank" rel="noopener" class="ml-1 text-green-600 hover:text-green-700" aria-label="Abrir WhatsApp">
-                    <i-lucide name="MessageCircle" class="h-4 w-4"></i-lucide>
-                  </a>
-                </div>
-                <div class="flex items-center gap-2 min-w-0" *ngIf="r.website">
-                  <i-lucide name="ExternalLink" class="h-4 w-4 text-primary"></i-lucide>
-                  <a [href]="r.website" target="_blank" rel="noopener" class="text-primary text-xs hover:underline flex-1 min-w-0 truncate">{{ r.website }}</a>
-                </div>
+              </ui-card>
+            </div>
+          </ng-container>
+
+          <ng-template #emptyResults>
+            <div class="py-12 flex flex-col items-center justify-center text-center gap-4">
+              <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                <i-lucide name="Search" class="w-8 h-8 text-muted-foreground"></i-lucide>
               </div>
-            </ui-card>
-          </div>
-          <div class="flex justify-center pt-6" *ngIf="(detail()?.results?.length || 0) > 0">
-            <ui-card class="glass-effect border-0 shadow-glass" [class.opacity-60]="pageCount <= 1">
-              <div class="p-4 flex items-center gap-2">
-                <ui-button variant="outline" size="sm" (click)="prevPage()" [disabled]="page() <= 1">Anterior</ui-button>
-                <div class="flex gap-1">
-                  <ui-button
-                    *ngFor="let p of [].constructor(pageCount); let i = index"
-                    [variant]="(i + 1) === page() ? 'default' : 'outline'"
-                    size="sm"
-                    className="text-white"
-                    (click)="goToPage(i + 1)"
-                  >
-                    {{ i + 1 }}
-                  </ui-button>
-                </div>
-                <ui-button variant="outline" size="sm" (click)="nextPage()" [disabled]="page() >= pageCount">Próximo</ui-button>
+              <div class="space-y-1">
+                <h3 class="font-semibold text-lg">Nenhuma empresa encontrada</h3>
+                <p class="text-muted-foreground text-sm max-w-sm">
+                  Não encontramos empresas com os critérios utilizados nesta prospecção.
+                </p>
               </div>
-            </ui-card>
-          </div>
+              <a routerLink="/saas/prospect">
+                <ui-button variant="outline" class="gap-2 mt-2">
+                  <i-lucide name="Plus" class="h-4 w-4"></i-lucide>
+                  Nova Prospecção
+                </ui-button>
+              </a>
+            </div>
+          </ng-template>
         </div>
       </ui-card>
     </ng-template>

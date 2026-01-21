@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
 import { map, catchError, throwError } from 'rxjs';
+import { AnalyticsOverviewDto } from '../dtos/analytics-overview.dto';
 
 export type AsyncTaskPlatform = 'GOOGLE_MAPS' | 'OTHER';
 export type AsyncTaskStatus = 'PROCESSING' | 'PROCESSED';
@@ -97,6 +98,16 @@ export class ProspectionsService {
   deleteProspection(taskId: number): Observable<void> {
     const url = `${this.auth.getApiUrl()}/api/v1/async/prospect/result/${taskId}`;
     return this.http.delete<void>(url);
+  }
+
+  deleteAllProspection(): Observable<void> {
+    const url = `${this.auth.getApiUrl()}/api/v1/async/prospect/result/all`;
+    return this.http.delete<void>(url);
+  }
+
+  getAnalyticsOverview(): Observable<AnalyticsOverviewDto> {
+    const url = `${this.auth.getApiUrl()}/api/v1/async/analytics/overview`;
+    return this.http.get<AnalyticsOverviewDto>(url);
   }
 
   clearCaches(): void {

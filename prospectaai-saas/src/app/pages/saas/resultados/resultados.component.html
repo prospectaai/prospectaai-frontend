@@ -8,14 +8,25 @@
           {{ filteredCompanies.length }} resultados encontrados
         </p>
       </div>
-      <ui-button class="gap-2 shadow-glow text-white">
-        <i-lucide name="download" class="h-4 w-4"></i-lucide>
-        Exportar CSV
-      </ui-button>
+      <div class="flex gap-2">
+        <ui-button class="gap-2 shadow-glow text-white">
+          <i-lucide name="download" class="h-4 w-4"></i-lucide>
+          Exportar CSV
+        </ui-button>
+        <ui-button
+          variant="destructive"
+          class="gap-2"
+          [disabled]="items().length === 0"
+          (click)="confirmDeleteAll()"
+          title="Excluir todos"
+        >
+          <i-lucide name="Trash" class="h-4 w-4"></i-lucide>
+        </ui-button>
+      </div>
     </div>
 
     <!-- Search & Filters -->
-    <ui-card class="glass-effect border-0 shadow-glass relative z-[10000]">
+    <ui-card class="glass-effect border-0 shadow-glass relative z-30">
       <div class="p-4 space-y-3" [formGroup]="searchForm">
         <div class="flex gap-3">
           <div class="relative flex-1">
@@ -31,7 +42,7 @@
             Filtros
           </ui-button>
         </div>
-        <div *ngIf="showFilters()" class="rounded-lg border bg-muted/30 p-3 transition-all duration-300 ease-out relative z-[10001]">
+        <div *ngIf="showFilters()" class="rounded-lg border bg-muted/30 p-3 transition-all duration-300 ease-out relative z-40">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div>
               <label class="text-xs text-muted-foreground mb-1 block">Data inicial</label>
@@ -87,12 +98,21 @@
           </div>
 
           <div class="grid grid-flow-col gap-1">
-            <a [routerLink]="['/saas/result', item.taskId]">
+            <a [routerLink]="['/saas/result', item.taskId]" class="flex-1">
               <ui-button variant="outline" size="sm" className="w-full">
                 <i-lucide name="ExternalLink" class="h-4 w-4"></i-lucide>
                 Ver Detalhes
               </ui-button>
             </a>
+            <ui-button
+              variant="outline"
+              size="sm"
+              className="text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200"
+              (click)="confirmDelete(item.taskId)"
+              title="Excluir"
+            >
+              <i-lucide name="Trash" class="h-4 w-4"></i-lucide>
+            </ui-button>
           </div>
         </div>
       </ui-card>
@@ -120,15 +140,31 @@
         <div class="p-4 flex items-center gap-2">
           <ui-button variant="outline" size="sm" (click)="prevPage()" [disabled]="page() <= 1">Anterior</ui-button>
           <div class="flex gap-1">
-            <ui-button
-              *ngFor="let p of [].constructor(pageCount); let i = index"
-              [variant]="(i + 1) === page() ? 'default' : 'outline'"
-              size="sm"
-              className="text-white"
-              (click)="goToPage(i + 1)"
-            >
-              {{ i + 1 }}
-            </ui-button>
+            <ng-container *ngIf="showFirstPageDots">
+              <ui-button
+                [variant]="1 === page() ? 'default' : 'outline'"
+                size="sm"
+                className="text-white"
+                (click)="goToPage(1)"
+              >
+                1
+              </ui-button>
+              <span class="px-2 text-muted-foreground">...</span>
+            </ng-container>
+            <ng-container *ngFor="let entry of pagesWindow">
+              <ui-button
+                *ngIf="entry !== '...'; else dotsTpl"
+                [variant]="entry === page() ? 'default' : 'outline'"
+                size="sm"
+                className="text-white"
+                (click)="goToEntry(entry)"
+              >
+                {{ entry }}
+              </ui-button>
+            </ng-container>
+            <ng-template #dotsTpl>
+              <span class="px-2 text-muted-foreground">...</span>
+            </ng-template>
           </div>
           <ui-button variant="outline" size="sm" (click)="nextPage()" [disabled]="page() >= pageCount">Próximo</ui-button>
         </div>
@@ -136,3 +172,17 @@
     </div>
   </div>
 </layout-saas-main>
+
+<ui-modal [isOpen]="showDeleteModal()" (close)="cancelDelete()" [title]="deleteTarget() === 'ALL' ? 'Excluir Todas' : 'Excluir Prospecção'" [size]="'sm'">
+  <div class="p-4 space-y-4">
+    <p class="text-sm text-muted-foreground">
+      {{ deleteTarget() === 'ALL' ? 'Tem certeza que deseja excluir todas as prospecções? Esta ação não pode ser desfeita.' : 'Tem certeza que deseja excluir esta prospecção?' }}
+    </p>
+    <div class="flex justify-end gap-2">
+      <ui-button variant="ghost" (click)="cancelDelete()">Cancelar</ui-button>
+      <ui-button variant="destructive" [disabled]="isDeleting()" (click)="executeDelete()">
+        {{ isDeleting() ? 'Excluindo...' : 'Excluir' }}
+      </ui-button>
+    </div>
+  </div>
+</ui-modal>
