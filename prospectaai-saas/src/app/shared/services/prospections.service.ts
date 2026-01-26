@@ -4,6 +4,8 @@ import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
 import { map, catchError, throwError } from 'rxjs';
 import { AnalyticsOverviewDto } from '../dtos/analytics-overview.dto';
+import { NotificationsService, NotificationItem } from './notifications.service';
+import { TasksService } from './tasks.service';
 
 export type AsyncTaskPlatform = 'GOOGLE_MAPS' | 'OTHER';
 export type AsyncTaskStatus = 'PROCESSING' | 'PROCESSED';
@@ -21,6 +23,7 @@ export interface ProspectionRecordDto {
   query: string;
   platform: string;
   nomeEmpresa: string;
+  imageUrl?: string;
   telefone?: string;
   endereco?: string;
   website?: string;
@@ -46,10 +49,13 @@ export class ProspectionsService {
   private summaries = signal<ProspectionSummaryDto[]>([]);
   private loadingSummaries = signal<boolean>(false);
   private detailsCache = new Map<number, ProspectionDetailDto>();
+  private analytics = signal<AnalyticsOverviewDto | null>(null);
+  private fallbackNotified = new Set<number>();
   public summariesSig = this.summaries.asReadonly();
   public loadingSummariesSig = this.loadingSummaries.asReadonly();
+  public analyticsSig = this.analytics.asReadonly();
 
-  constructor(private http: HttpClient, private auth: AuthService) {}
+  constructor(private http: HttpClient, private auth: AuthService, private notifs: NotificationsService, private tasks: TasksService) {}
 
   loadAllSummaries(): void {
     if (!this.auth.isBrowser()) return;
@@ -66,6 +72,29 @@ export class ProspectionsService {
       next: (list) => {
         const arr = Array.isArray(list) ? list : [];
         this.summaries.set(arr);
+        const tasksNow = this.tasks['getTasks']?.() || [];
+        for (const s of arr) {
+          if (s.status === 'PROCESSED' && (s.resultsCount || 0) > 0) {
+            if (!this.fallbackNotified.has(s.taskId)) {
+              const inPanel = tasksNow.find(t => t.id === String(s.taskId));
+              if (inPanel && inPanel.status === 'PROCESSANDO') {
+                const notif: NotificationItem = {
+                  id: `TASK:${s.taskId}`,
+                  title: 'Prospecção concluída',
+                  datetime: new Date().toISOString(),
+                  sentLabel: 'Agora',
+                  icon: 'CheckCircle',
+                  content: s.query,
+                  link: `/saas/result/${s.taskId}`,
+                  read: false
+                };
+                this.notifs.addNotification(notif);
+                this.refreshAnalyticsOverview();
+                this.fallbackNotified.add(s.taskId);
+              }
+            }
+          }
+        }
       },
       error: () => {
         this.summaries.set([]);
@@ -110,9 +139,18 @@ export class ProspectionsService {
     return this.http.get<AnalyticsOverviewDto>(url);
   }
 
+  refreshAnalyticsOverview(): void {
+    const url = `${this.auth.getApiUrl()}/api/v1/async/analytics/overview`;
+    this.http.get<AnalyticsOverviewDto>(url).subscribe({
+      next: (data) => this.analytics.set(data),
+      error: () => {}
+    });
+  }
+
   clearCaches(): void {
     this.summaries.set([]);
     this.loadingSummaries.set(false);
     this.detailsCache.clear();
+    this.analytics.set(null);
   }
 }

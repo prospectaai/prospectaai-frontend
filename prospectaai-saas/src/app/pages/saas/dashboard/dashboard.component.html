@@ -39,8 +39,17 @@
 
         </ui-card-header>
         <ui-card-content>
-          <div class="text-3xl font-bold text-foreground">{{ stat.value }}</div>
-          <p class="text-xs text-muted-foreground mt-2">{{ stat.change }}</p>
+          <ng-container *ngIf="stat.isPlatform; else defaultStat">
+            <div class="text-xl font-semibold text-foreground flex items-center gap-2">
+              <i-lucide [name]="stat.platformIcon || 'Globe'" class="h-4 w-4 text-primary"></i-lucide>
+              <span>{{ stat.value || '-' }}</span>
+            </div>
+            <p class="text-xs text-muted-foreground mt-2">{{ stat.change }}</p>
+          </ng-container>
+          <ng-template #defaultStat>
+            <div class="text-3xl font-bold text-foreground">{{ stat.value || '-' }}</div>
+            <p class="text-xs text-muted-foreground mt-2">{{ stat.change }}</p>
+          </ng-template>
         </ui-card-content>
       </ui-card>
     </div>

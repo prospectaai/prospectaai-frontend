@@ -3,6 +3,6 @@ export interface AnalyticsOverviewDto {
   empresasProspectadasVariationPercentMonth: number;
   buscasAtivasTotal: number;
   buscasAgendadas: number;
-  localizacoesTotal: number;
+  plataformaMaisUsada: string;
   cidadesTotal: number;
 }

@@ -100,19 +100,6 @@ export class TasksService {
     const nowIso = new Date().toISOString();
     const idStr = String(dto.taskId);
 
-    // Filter old tasks before adding to state
-    if (mappedStatus === 'CONCLUIDA') {
-      // Since we don't have the exact end time from DTO in this method (it seems DTO doesn't have it?),
-      // we assume 'nowIso' if it's a new update.
-      // However, if we are loading history, we might be setting 'end' to 'now'.
-      // Wait, 'upsertFromDto' sets 'end' to 'nowIso' if CONCLUIDA.
-      // If we are loading old tasks from 'get-all-processed', we are setting their end time to NOW.
-      // THIS IS A BUG if we want to filter them based on *actual* completion time.
-      // We need to know when the task was actually completed.
-      // Looking at 'AsyncTaskPanelDto', does it have completion time?
-      // Let's check 'AsyncTaskPanelDto' definition.
-    }
-
     this.tasks.update(curr => {
       const idx = curr.findIndex(t => t.id === idStr);
       if (idx !== -1) {
@@ -198,7 +185,7 @@ export class TasksService {
       // 2. Process Processing (Active tasks - overwrite/add)
       if (Array.isArray(processing)) {
         processing.forEach(dto => {
-          const status: TaskStatus = dto.status === 'PROCESSED' ? 'CONCLUIDA' : 'PROCESSANDO';
+          const status: TaskStatus = 'PROCESSANDO';
           const type: TaskType = dto.platform === 'GOOGLE_MAPS' ? 'PROSPECÇÃO' : 'OUTRA';
           // Always add processing tasks
           taskMap.set(String(dto.taskId), {
@@ -256,7 +243,11 @@ export class TasksService {
       next: (list) => {
         const arr = Array.isArray(list) ? list : [];
         if (arr.length === 0) return;
-        arr.forEach(dto => this.upsertFromDto(dto));
+        arr.forEach(dto => {
+          if (dto.platform !== 'GOOGLE_MAPS') {
+            this.upsertFromDto(dto);
+          }
+        });
       },
       error: () => {}
     });

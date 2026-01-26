@@ -64,7 +64,7 @@ export class ProspeccaoComponent implements OnInit, AfterViewInit {
       location: [''],
       state: [''],
       city: [''],
-      searchRadius: [2],
+      searchRadius: [5],
       businessType: [''],
       useAddress: [false],
       addressStreet: [''],
@@ -204,8 +204,8 @@ export class ProspeccaoComponent implements OnInit, AfterViewInit {
       }
       const display = [`${street}${number ? ' ' + number : ''}${neighborhood ? ' - ' + neighborhood : ''}`, city, state].filter(Boolean).join(', ');
       location = display;
-      if (radius < 2 || radius > 100) {
-        this.toast.warning('Atenção', 'Raio deve ser entre 2 e 100 km.');
+      if (radius < 5 || radius > 100) {
+        this.toast.warning('Atenção', 'Raio deve ser entre 5 e 100 km.');
         return;
       }
     } else {
@@ -471,11 +471,11 @@ export class ProspeccaoComponent implements OnInit, AfterViewInit {
       const mode = String(data.mode || '').toUpperCase();
       const useAddr = !!data.useAddress || mode === 'ADDRESS';
       if (useAddr) {
-        const radius = typeof data.searchRadius === 'number' ? data.searchRadius : 2;
+        const radius = typeof data.searchRadius === 'number' ? data.searchRadius : 5;
         const patch: any = {
           businessType: bt,
           useAddress: true,
-          searchRadius: radius >= 2 && radius <= 100 ? radius : 2,
+          searchRadius: radius >= 5 && radius <= 100 ? radius : 5,
           addressStreet: data.addressStreet || '',
           addressNumber: data.addressNumber || '',
           addressNeighborhood: data.addressNeighborhood || '',
@@ -577,7 +577,7 @@ export class ProspeccaoComponent implements OnInit, AfterViewInit {
       const street = String(this.addressStreet || '').trim();
        const neighborhood = String(this.addressNeighborhood || '').trim();
       const radius = Number(this.searchRadius || 0);
-      return city.length > 0 && state.length > 0 && street.length > 0 && neighborhood.length > 0 && radius >= 2 && radius <= 100;
+      return city.length > 0 && state.length > 0 && street.length > 0 && neighborhood.length > 0 && radius >= 5 && radius <= 100;
     } else {
       const stateId = String(this.state || '').trim();
       const cityName = String(this.city || '').trim();
@@ -667,7 +667,7 @@ export class ProspeccaoComponent implements OnInit, AfterViewInit {
       location: '',
       state: '',
       city: '',
-      searchRadius: 2,
+      searchRadius: 5,
       businessType: '',
       useAddress: false,
       addressStreet: '',

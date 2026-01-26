@@ -33,6 +33,12 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ui-card *ngFor="let r of pagedResults()" class="glass-effect border-0 shadow-glass hover-lift">
                 <div class="p-4 space-y-3 text-sm">
+                  <div class="relative w-full h-36 md:h-40 rounded-lg overflow-hidden bg-muted">
+                    <img *ngIf="r.imageUrl" [src]="r.imageUrl" [alt]="r.nomeEmpresa" loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
+                    <div *ngIf="!r.imageUrl" class="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                      <i-lucide name="Building2" class="h-8 w-8"></i-lucide>
+                    </div>
+                  </div>
                   <div class="flex items-center justify-between">
                     <p class="text-base font-semibold truncate">{{ r.nomeEmpresa }}</p>
                     <div class="flex items-center gap-1 text-yellow-500" *ngIf="r.rating">
@@ -47,8 +53,15 @@
                   <div class="flex items-center gap-2">
                     <i-lucide name="Phone" class="h-4 w-4 text-primary"></i-lucide>
                     <span class="text-muted-foreground">{{ r.telefone || '—' }}</span>
-                    <a *ngIf="r.telefone" [href]="whatsappLink(r.telefone)" target="_blank" rel="noopener" class="ml-1 text-green-600 hover:text-green-700" aria-label="Abrir WhatsApp">
-                      <i-lucide name="MessageCircle" class="h-4 w-4"></i-lucide>
+                    <a *ngIf="r.telefone" [href]="whatsappLink(r.telefone)" target="_blank" rel="noopener" class="ml-2" aria-label="Abrir WhatsApp">
+                      <ui-button variant="outline" size="sm" className="gap-2 text-green-600 hover:text-green-700">
+                        <img
+                          class="h-4 w-4"
+                          alt="WhatsApp"
+                          src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/WhatsApp_icon.png/32px-WhatsApp_icon.png"
+                        />
+                        <span>Ir para WhatsApp</span>
+                      </ui-button>
                     </a>
                   </div>
                   <div class="flex items-center gap-2 min-w-0" *ngIf="r.website">

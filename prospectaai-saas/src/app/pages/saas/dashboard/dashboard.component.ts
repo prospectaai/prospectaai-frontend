@@ -44,6 +44,38 @@ export class DashboardPageComponent implements OnInit {
   ) {}
 
   stats = signal<any[]>([]);
+  private doneEffect = effect(() => {
+    const doneAt = this.tasks.getLastCompletedAt();
+    if (doneAt) {
+      this.prospectionsService.getAnalyticsOverview().subscribe({
+        next: (data) => {
+          this.analytics.set(data);
+          this.updateStats(data);
+        },
+        error: () => {}
+      });
+      this.prospectionsService.loadAllSummaries();
+    }
+  }, { allowSignalWrites: true });
+  private summariesEffect = effect(() => {
+    const summaries = this.prospectionsService.summariesSig();
+    if (summaries && summaries.length > 0) {
+      this.prospectionsService.getAnalyticsOverview().subscribe({
+        next: (data) => {
+          this.analytics.set(data);
+          this.updateStats(data);
+        },
+        error: () => {}
+      });
+    }
+  }, { allowSignalWrites: true });
+  private analyticsEffect = effect(() => {
+    const data = this.prospectionsService.analyticsSig();
+    if (data) {
+      this.analytics.set(data);
+      this.updateStats(data);
+    }
+  }, { allowSignalWrites: true });
 
   ngOnInit(): void {
     // Se foi aberto no popup, devolve o token ao opener e fecha (apenas no browser)
@@ -63,19 +95,6 @@ export class DashboardPageComponent implements OnInit {
 
     this.loadData();
 
-    effect(() => {
-      const doneAt = this.tasks.getLastCompletedAt();
-      if (doneAt) {
-        this.prospectionsService.getAnalyticsOverview().subscribe({
-          next: (data) => {
-            this.analytics.set(data);
-            this.updateStats(data);
-          },
-          error: () => {}
-        });
-        this.prospectionsService.loadAllSummaries();
-      }
-    });
   }
 
   loadData() {
@@ -105,34 +124,45 @@ export class DashboardPageComponent implements OnInit {
     this.stats.set([
       {
         title: 'Empresas Prospectadas',
-        value: data.empresasProspectadasTotal.toLocaleString(),
+        value: typeof data.empresasProspectadasTotal === 'number' ? data.empresasProspectadasTotal.toLocaleString() : '-',
         change: `${data.empresasProspectadasVariationPercentMonth > 0 ? '+' : ''}${data.empresasProspectadasVariationPercentMonth}% este mês`,
         icon: 'Users',
       },
       {
         title: 'Buscas Ativas',
-        value: data.buscasAtivasTotal.toString(),
+        value: typeof data.buscasAtivasTotal === 'number' ? data.buscasAtivasTotal.toString() : '-',
         change: `${data.buscasAgendadas} agendadas`,
         icon: 'Calendar',
       },
       {
         title: 'Cidades Alcançadas',
-        value: data.cidadesTotal.toString(),
+        value: typeof data.cidadesTotal === 'number' ? data.cidadesTotal.toString() : '-',
         change: 'Expansão geográfica',
         icon: 'MapPin',
       },
       {
-        title: 'Localizações',
-        value: data.localizacoesTotal.toLocaleString(),
-        change: 'Total mapeado',
-        icon: 'Globe',
+        title: 'Plataforma mais usada',
+        value: (data.plataformaMaisUsada || '').trim() || '-',
+        change: 'Mais utilizada',
+        icon: this.getPlatformIcon((data.plataformaMaisUsada || '').trim()),
+        isPlatform: true,
+        platformIcon: this.getPlatformIcon((data.plataformaMaisUsada || '').trim())
       },
     ]);
   }
 
+  private getPlatformIcon(name: string): string {
+    const n = (name || '').trim().toUpperCase();
+    if (n === 'GOOGLE_MAPS') return 'MapPin';
+    if (n === 'LINKEDIN') return 'Linkedin';
+    if (n === 'INSTAGRAM') return 'Instagram';
+    return 'Globe';
+  }
   get recentSearchesList() {
     const arr = this.prospectionsService.summariesSig();
-    const filtered = arr.filter(s => s.status === 'PROCESSED' && (s.resultsCount || 0) > 0);
+    const filtered = arr
+      .filter(s => s.status === 'PROCESSED' && (s.resultsCount || 0) > 0)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return filtered.slice(0, 5);
   }
 }

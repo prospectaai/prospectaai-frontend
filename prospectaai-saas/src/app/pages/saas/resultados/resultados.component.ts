@@ -73,6 +73,13 @@ export class ResultadosComponent implements OnInit {
       }
       this.prospections.loadAllSummaries();
     }, 8000);
+
+    effect(() => {
+      const doneAt = this.tasks.getLastCompletedAt();
+      if (doneAt) {
+        this.prospections.loadAllSummaries();
+      }
+    });
   }
 
   // ... (existing filter getters) ...

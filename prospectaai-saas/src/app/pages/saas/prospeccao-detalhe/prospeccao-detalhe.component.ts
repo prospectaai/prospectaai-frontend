@@ -70,6 +70,14 @@ export class ProspeccaoDetalheComponent implements OnInit {
       }
       this.loadDetail();
     }, 6000);
+
+    effect(() => {
+      const doneAt = this.tasks.getLastCompletedAt();
+      if (doneAt) {
+        this.prospections.loadAllSummaries();
+        this.loadDetail();
+      }
+    }, { allowSignalWrites: true });
   }
 
   private loadDetail(): void {

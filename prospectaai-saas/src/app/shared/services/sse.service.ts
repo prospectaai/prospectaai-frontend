@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { NotificationsService, NotificationItem } from './notifications.service';
 import { TasksService } from './tasks.service';
 import { AsyncTaskPanelDto } from '../dtos/async-task-panel.dto';
+import { ProspectionsService } from './prospections.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class SseService {
   private isConnecting = false;
   private connected = false;
 
-  constructor(private auth: AuthService, private notifs: NotificationsService, private tasks: TasksService, private zone: NgZone) {}
+  constructor(private auth: AuthService, private notifs: NotificationsService, private tasks: TasksService, private zone: NgZone, private prospections: ProspectionsService) {}
 
   connect(): void {
     if (this.isConnecting) return;
@@ -52,8 +53,19 @@ export class SseService {
           let buffer = '';
           while (true) {
             const { value, done } = await reader.read();
-            if (done) break;
+            if (done) {
+              this.connected = false;
+              this.isConnecting = false;
+              setTimeout(() => {
+                const t = this.auth.getToken();
+                if (t && !this.auth.isTokenExpired()) {
+                  this.connect();
+                }
+              }, 3000);
+              break;
+            }
             buffer += decoder.decode(value, { stream: true });
+            buffer = buffer.replace(/\r\n/g, '\n');
             let idx;
             while ((idx = buffer.indexOf('\n\n')) !== -1) {
               const raw = buffer.slice(0, idx);
@@ -104,7 +116,7 @@ export class SseService {
 
   private handleEvent(chunk: string): void {
     // Parse básico de text/event-stream
-    const lines = chunk.split('\n');
+    const lines = chunk.split('\n').map(l => l.replace(/\r$/, ''));
     let eventName: string | null = null;
     let dataLines: string[] = [];
     for (const line of lines) {
@@ -137,12 +149,16 @@ export class SseService {
             title: obj.status === 'PROCESSED' ? 'Prospecção concluída' : 'Prospecção atualizada',
             datetime: new Date().toISOString(),
             sentLabel: 'Agora',
-            icon: obj.status === 'PROCESSED' ? 'CheckCircle2' : 'Loader2',
+            icon: obj.status === 'PROCESSED' ? 'CheckCircle' : 'Loader',
             content: obj.query,
             link: `/saas/result/${obj.taskId}`,
             read: false
           };
           this.notifs.addNotification(notif);
+          if (obj.status === 'PROCESSED') {
+            this.prospections.loadAllSummaries();
+            this.prospections.refreshAnalyticsOverview();
+          }
         });
       } catch {}
     }

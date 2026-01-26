@@ -132,7 +132,7 @@
           </ui-label>
           <ui-slider
             formControlName="searchRadius"
-            [min]="2"
+            [min]="5"
             [max]="100"
             [step]="1"
           ></ui-slider>
@@ -156,10 +156,10 @@
         <!-- Fontes de Dados -->
         <div class="space-y-2">
           <ui-label>Fontes de Dados</ui-label>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
             <!-- Google Maps -->
-            <ui-card class="bg-secondary/50 border-primary/20 hover:border-primary transition-colors cursor-pointer h-full">
-              <div class="p-4 text-center">
+            <ui-card class="bg-secondary/50 border-primary/20 hover:border-primary transition-colors cursor-pointer h-full flex">
+              <div class="p-4 text-center flex-1 flex flex-col items-center justify-center">
                 <div
                   class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2"
                 >
@@ -170,8 +170,8 @@
             </ui-card>
 
             <!-- LinkedIn -->
-            <ui-card class="bg-secondary/50 border-muted hover:border-primary transition-colors cursor-pointer">
-              <div class="p-4 text-center">
+            <ui-card class="bg-secondary/50 border-muted hover:border-primary transition-colors cursor-pointer h-full flex">
+              <div class="p-4 text-center flex-1 flex flex-col items-center justify-center">
                 <div
                   class="h-10 w-10 rounded-full bg-muted flex items-center justify-center mx-auto mb-2"
                 >
@@ -183,8 +183,8 @@
             </ui-card>
 
             <!-- Instagram -->
-            <ui-card class="bg-secondary/50 border-muted hover:border-primary transition-colors cursor-pointer">
-              <div class="p-4 text-center">
+            <ui-card class="bg-secondary/50 border-muted hover:border-primary transition-colors cursor-pointer h-full flex">
+              <div class="p-4 text-center flex-1 flex flex-col items-center justify-center">
                 <div
                   class="h-10 w-10 rounded-full bg-muted flex items-center justify-center mx-auto mb-2"
                 >
