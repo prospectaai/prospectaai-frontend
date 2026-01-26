@@ -53,19 +53,8 @@ export class SseService {
           let buffer = '';
           while (true) {
             const { value, done } = await reader.read();
-            if (done) {
-              this.connected = false;
-              this.isConnecting = false;
-              setTimeout(() => {
-                const t = this.auth.getToken();
-                if (t && !this.auth.isTokenExpired()) {
-                  this.connect();
-                }
-              }, 3000);
-              break;
-            }
+            if (done) break;
             buffer += decoder.decode(value, { stream: true });
-            buffer = buffer.replace(/\r\n/g, '\n');
             let idx;
             while ((idx = buffer.indexOf('\n\n')) !== -1) {
               const raw = buffer.slice(0, idx);
@@ -116,7 +105,7 @@ export class SseService {
 
   private handleEvent(chunk: string): void {
     // Parse básico de text/event-stream
-    const lines = chunk.split('\n').map(l => l.replace(/\r$/, ''));
+    const lines = chunk.split('\n');
     let eventName: string | null = null;
     let dataLines: string[] = [];
     for (const line of lines) {
