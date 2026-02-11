@@ -17,19 +17,19 @@ import { ProspeccaoDetalheComponent } from './pages/saas/prospeccao-detalhe/pros
 
 export const routes: Routes = [
   // Rotas de páginas publicas do app
-  { path: '', component: LandingPageComponent },
-  { path: 'auth', component: LoginPageComponent, canActivate: [guestGuard] },
-  { path: 'auth/callback', component: OAuthCallbackComponent },
-  { path: 'auth/reset-password', loadComponent: () => import('./pages/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent) },
-  { path: 'checkout', component: CheckoutComponent, canActivate: [guestGuard] },
-  { path: 'splash', component: SplashComponent, canActivate: [authGuard] },
-  { path: 'error', component: ErrorPageComponent },
-  { path: 'saas/dashboard', component: DashboardPageComponent, canActivate: [authGuard] },
-  { path: 'saas/prospect', component: ProspeccaoComponent, canActivate: [authGuard] },
-  { path: 'saas/results', component: ResultadosComponent, canActivate: [authGuard] },
-  { path: 'saas/result/:taskId', component: ProspeccaoDetalheComponent, canActivate: [authGuard] },
-  { path: 'saas/settings', component: ConfiguracoesComponent, canActivate: [authGuard] },
-  { path: 'saas/subscription', component: GerenciamentoAssinaturaComponent, canActivate: [authGuard] },
-  { path: 'saas/notifications', component: NotificationsPageComponent, canActivate: [authGuard] },
+  { path: '', component: LandingPageComponent, title: 'ProspectaAI - Prospecção Automatizada' },
+  { path: 'auth', component: LoginPageComponent, canActivate: [guestGuard], title: 'ProspectaAI - Entrar' },
+  { path: 'auth/callback', component: OAuthCallbackComponent, title: 'ProspectaAI - Autenticando...' },
+  { path: 'auth/reset-password', loadComponent: () => import('./pages/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent), title: 'ProspectaAI - Recuperar Senha' },
+  { path: 'checkout', component: CheckoutComponent, canActivate: [guestGuard], title: 'ProspectaAI - Checkout' },
+  { path: 'splash', component: SplashComponent, canActivate: [authGuard], title: 'ProspectaAI - Bem-vindo' },
+  { path: 'error', component: ErrorPageComponent, title: 'ProspectaAI - Erro' },
+  { path: 'saas/dashboard', component: DashboardPageComponent, canActivate: [authGuard], title: 'ProspectaAI - Dashboard' },
+  { path: 'saas/prospect', component: ProspeccaoComponent, canActivate: [authGuard], title: 'ProspectaAI - Nova Prospecção' },
+  { path: 'saas/results', component: ResultadosComponent, canActivate: [authGuard], title: 'ProspectaAI - Meus Resultados' },
+  { path: 'saas/result/:taskId', component: ProspeccaoDetalheComponent, canActivate: [authGuard], title: 'ProspectaAI - Detalhes da Prospecção' },
+  { path: 'saas/settings', component: ConfiguracoesComponent, canActivate: [authGuard], title: 'ProspectaAI - Configurações' },
+  { path: 'saas/subscription', component: GerenciamentoAssinaturaComponent, canActivate: [authGuard], title: 'ProspectaAI - Assinatura' },
+  { path: 'saas/notifications', component: NotificationsPageComponent, canActivate: [authGuard], title: 'ProspectaAI - Notificações' },
   { path: '**', redirectTo: '' }
 ];

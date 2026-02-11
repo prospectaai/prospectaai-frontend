@@ -11,9 +11,7 @@
 
       <nav class="hidden md:flex items-center gap-8">
         <a href="#features" class="text-sm hover:text-primary transition-colors">Funcionalidades</a>
-        <a href="#demo" class="text-sm hover:text-primary transition-colors">Demo</a>
         <a href="#pricing" class="text-sm hover:text-primary transition-colors">Preços</a>
-        <a href="#testimonials" class="text-sm hover:text-primary transition-colors">Depoimentos</a>
       </nav>
 
       <div class="flex items-center gap-4">
@@ -22,7 +20,7 @@
             <ui-button variant="ghost" size="sm">Entrar</ui-button>
           </a>
           <ui-button routerLink="/auth" size="sm" class="text-white" className="bg-primary hover:bg-primary/90">
-            Começar Grátis
+            Começar Agora
           </ui-button>
         </ng-container>
         <ng-template #authenticated>
@@ -45,18 +43,17 @@
           🚀 Automação Inteligente de Prospecção
         </ui-badge>
         <h1 class="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-          Encontre Milhares de Clientes em Potencial no Piloto Automático
+          Encontre Clientes Reais via Google Maps em Segundos
         </h1>
         <p class="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Automatize sua prospecção usando Google Maps, LinkedIn e Instagram.
-          Economize horas de trabalho e foque no que importa: fechar vendas.
+          Extraia dados de empresas diretamente do Google Places.
+          A forma mais rápida e organizada de prospectar negócios locais e B2B.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <ui-button size="lg" class="text-white" className="bg-primary hover:bg-primary/90 text-base px-8">Iniciar Teste Gratuito de 14 Dias</ui-button>
-          <ui-button size="lg" variant="outline" class="btn btn-outline btn-lg px-8">Ver Demonstração</ui-button>
+          <ui-button routerLink="/auth" size="lg" class="text-white" className="bg-primary hover:bg-primary/90 text-base px-8">Começar Agora</ui-button>
         </div>
         <p class="text-sm text-muted-foreground mt-4">
-          ✓ Sem cartão de crédito • ✓ Configuração em 5 minutos • ✓ Cancele quando quiser
+          ✓ Sem configuração complexa • ✓ Dados do Google Maps • ✓ Exportação Instantânea
         </p>
       </div>
     </div>
@@ -87,17 +84,17 @@
           ✅ Funcionalidades
         </ui-badge>
         <h2 class="text-3xl md:text-5xl font-bold mb-4">
-          Tudo que você precisa para prospectar melhor
+          O jeito mais fácil de prospectar
         </h2>
         <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Ferramentas poderosas para encontrar, qualificar e exportar seus prospects de forma automática
+          Ferramentas focadas em trazer leads qualificados do Google Places de forma organizada
         </p>
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div *ngFor="let feature of features; let i = index">
-          <ui-card className="max-w-sm">
-            <ui-card-content className="pt-6 hover:shadow-glass-lg transition-all duration-300 animate-scale-in backdrop-blur-sm bg-card/50 border-border/40" [style.animation-delay.ms]="i * 100" >
+          <ui-card className="max-w-sm h-full">
+            <ui-card-content className="pt-6 h-full hover:shadow-glass-lg transition-all duration-300 animate-scale-in backdrop-blur-sm bg-card/50 border-border/40" [style.animation-delay.ms]="i * 100" >
               <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 text-primary">
                 <i-lucide [name]="feature.icon" class="h-6 w-6"></i-lucide>
               </div>
@@ -105,45 +102,33 @@
               <p class="text-muted-foreground text-sm">{{ feature.description }}</p>
             </ui-card-content>
           </ui-card>
-
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Demo -->
-  <section id="demo" class="py-20 md:py-32 bg-muted/20">
+  <!-- SaaS Preview (MVP) -->
+  <section id="preview" class="py-20 md:py-32 bg-muted/20">
     <div class="container mx-auto px-6">
       <div class="text-center mb-16">
-        <ui-badge variant="outline" className="mb-6 bg-primary/10 hover:bg-primary text-primary border-primary/20 hover:text-white">💻 Demonstração</ui-badge>
-        <h2 class="text-3xl md:text-5xl font-bold mb-4">Veja a plataforma em ação</h2>
+        <ui-badge variant="outline" className="mb-6 bg-primary/10 hover:bg-primary text-primary border-primary/20 hover:text-white">🚀 Em Ação</ui-badge>
+        <h2 class="text-3xl md:text-5xl font-bold mb-4">Simplicidade e Eficiência</h2>
         <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Interface intuitiva e poderosa para gerenciar toda sua prospecção
+          Uma interface limpa para você focar no que importa: seus novos clientes
         </p>
       </div>
 
-      <div class="space-y-12">
-        <div>
-          <img src="assets/demo-dashboard.jpg" alt="Dashboard" class="w-full rounded-xl shadow-xl border border-border/40" />
-          <p class="text-center text-sm text-muted-foreground mt-4">
-            Dashboard com métricas em tempo real e acompanhamento de resultados
-          </p>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-8">
-          <div>
-            <img src="assets/demo-search.jpg" alt="Configuração de busca" class="w-full rounded-xl shadow-lg border border-border/40" />
-            <p class="text-center text-sm text-muted-foreground mt-4">
-              Configure buscas personalizadas com filtros avançados
-            </p>
-          </div>
-          <div>
-            <img src="assets/demo-results.jpg" alt="Resultados" class="w-full rounded-xl shadow-lg border border-border/40" />
-            <p class="text-center text-sm text-muted-foreground mt-4">
-              Visualize e exporte resultados de forma organizada
-            </p>
+      <div class="max-w-5xl mx-auto">
+        <div class="aspect-video bg-card/50 border border-border/40 rounded-2xl flex items-center justify-center shadow-2xl relative overflow-hidden group">
+          <div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
+          <div class="flex flex-col items-center gap-4 relative z-10">
+            <i-lucide name="image" class="h-16 w-16 text-muted-foreground/50"></i-lucide>
+            <p class="text-muted-foreground font-medium">Dashboard Preview</p>
           </div>
         </div>
+        <p class="text-center text-sm text-muted-foreground mt-6 italic">
+          * Imagens ilustrativas do sistema em desenvolvimento (Versão MVP)
+        </p>
       </div>
     </div>
   </section>
@@ -155,13 +140,13 @@
         <ui-badge variant="outline" className="mb-6 bg-primary/10 hover:bg-primary text-primary border-primary/20 hover:text-white">💳 Planos e Preços</ui-badge>
         <h2 class="text-3xl md:text-5xl font-bold mb-4">Escolha o plano ideal para você</h2>
         <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Todos os planos incluem 14 dias de teste grátis. Cancele quando quiser.
+          Preços transparentes para impulsionar seu negócio local ou B2B.
         </p>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        <div *ngFor="let plan of plans" [ngClass]="plan.highlighted ? 'border-primary shadow-xl bg-card' : 'border-border/40 bg-card/50'" class="p-8 border rounded-xl relative">
-          <span *ngIf="plan.highlighted" class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-sm px-3 py-1 rounded-full">Mais Popular</span>
+      <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div *ngFor="let plan of plans" [ngClass]="plan.highlighted ? 'border-primary shadow-xl bg-card' : 'border-border/40 bg-card/50'" class="p-8 border rounded-xl relative flex flex-col">
+          <span *ngIf="plan.highlighted" class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-sm px-3 py-1 rounded-full">Recomendado</span>
           <div class="text-center mb-6">
             <h3 class="text-2xl font-bold mb-2">{{ plan.name }}</h3>
             <p class="text-sm text-muted-foreground mb-4">{{ plan.description }}</p>
@@ -170,108 +155,55 @@
               <span class="text-muted-foreground">{{ plan.period }}</span>
             </div>
           </div>
-          <ul class="space-y-3 mb-8">
+          <ul class="space-y-3 mb-8 flex-grow">
             <li *ngFor="let f of plan.features" class="flex items-start gap-3">
               <i-lucide name="check" class="h-5 w-5 text-primary mt-0.5"></i-lucide>
               <span class="text-sm">{{ f }}</span>
             </li>
           </ul>
-          <ui-button [variant]="plan.highlighted ? 'default' : 'outline' " [ngClass]="plan.highlighted ? 'btn btn-primary w-full' : 'btn w-full bg-muted hover:bg-muted/80'">
-            Começar Agora
+          <ui-button [routerLink]="['/checkout']" [queryParams]="{ plan: plan.name === 'Plano Mensal' ? 'monthly' : 'annual' }" [variant]="plan.highlighted ? 'default' : 'outline' " [ngClass]="plan.highlighted ? 'btn btn-primary w-full text-white' : 'btn w-full bg-muted hover:bg-muted/80'">
+            Escolher {{ plan.name }}
           </ui-button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Testimonials -->
-  <section id="testimonials" class="py-20 md:py-32 bg-muted/20">
-    <div class="container mx-auto px-6">
-      <div class="text-center mb-16">
-        <ui-badge variant="outline" className="mb-6 bg-primary/10 hover:bg-primary text-primary border-primary/20 hover:text-white">💬 Depoimentos</ui-badge>
-        <h2 class="text-3xl md:text-5xl font-bold mb-4">O que nossos clientes dizem</h2>
-        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Histórias reais de profissionais que transformaram sua prospecção
-        </p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        <div *ngFor="let t of testimonials" class="p-6 bg-card/50 border border-border/40 rounded-xl">
-          <div class="flex gap-1 mb-4">
-            <i-lucide *ngFor="let s of [].constructor(t.rating)" name="star" class="h-4 w-4 fill-primary text-primary"></i-lucide>
-          </div>
-          <p class="text-sm mb-6 italic">"{{ t.content }}"</p>
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <span class="text-primary font-semibold">{{ t.name.split(' ')[0][0] }}{{ t.name.split(' ')[1][0] }}</span>
-            </div>
-            <div>
-              <div class="font-semibold text-sm">{{ t.name }}</div>
-              <div class="text-xs text-muted-foreground">
-                {{ t.role }} • {{ t.company }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- CTA -->
-  <section class="py-20 md:py-32">
+  <section class="py-20 md:py-32 bg-muted/20">
     <div class="container mx-auto px-6">
       <div class="p-12 md:p-16 text-center bg-gradient-to-br from-primary/10 via-background to-background border border-primary/20 rounded-xl">
         <i-lucide name="trending-up" class="h-16 w-16 text-primary mx-auto mb-6"></i-lucide>
-        <h2 class="text-3xl md:text-5xl font-bold mb-4">Pronto para 10x sua prospecção?</h2>
+        <h2 class="text-3xl md:text-5xl font-bold mb-4">Pronto para encontrar novos clientes?</h2>
         <p class="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-          Junte-se a milhares de profissionais que já automatizaram sua prospecção e estão fechando mais vendas com menos esforço.
+          Junte-se aos profissionais que já estão usando o PropectaAI para escalar suas vendas.
         </p>
-        <ui-button class="btn btn-primary btn-lg px-8">Começar Teste Gratuito Agora</ui-button>
-        <p class="text-sm text-muted-foreground mt-4">14 dias grátis • Sem cartão de crédito • Suporte em português</p>
+        <ui-button routerLink="/auth" class="btn btn-primary btn-lg px-8 text-white">Começar Agora</ui-button>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="border-t border-border/40 py-12 bg-muted/20">
+  <footer class="border-t border-border/40 py-12">
     <div class="container mx-auto px-6">
-      <div class="grid md:grid-cols-4 gap-8 mb-8">
-        <div>
-          <div class="flex items-center gap-2 mb-4">
-            <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <i-lucide name="target" class="h-5 w-5 text-white"></i-lucide>
-            </div>
-            <span class="text-xl font-bold">PropectaAI</span>
+      <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <i-lucide name="target" class="h-5 w-5 text-white"></i-lucide>
           </div>
-          <p class="text-sm text-muted-foreground">Automação inteligente de prospecção para profissionais modernos.</p>
+          <span class="text-xl font-bold">PropectaAI</span>
         </div>
-        <div>
-          <h4 class="font-semibold mb-4">Produto</h4>
-          <ul class="space-y-2 text-sm text-muted-foreground">
-            <li><a href="#features" class="hover:text-primary">Funcionalidades</a></li>
-            <li><a href="#pricing" class="hover:text-primary">Preços</a></li>
-            <li><a href="#demo" class="hover:text-primary">Demo</a></li>
-          </ul>
+
+        <nav class="flex gap-8 text-sm text-muted-foreground">
+          <a href="#features" class="hover:text-primary transition-colors">Funcionalidades</a>
+          <a href="#pricing" class="hover:text-primary transition-colors">Preços</a>
+          <a href="#" class="hover:text-primary transition-colors">Termos</a>
+          <a href="#" class="hover:text-primary transition-colors">Privacidade</a>
+        </nav>
+
+        <div class="text-sm text-muted-foreground">
+          © 2026 PropectaAI. Todos os direitos reservados.
         </div>
-        <div>
-          <h4 class="font-semibold mb-4">Empresa</h4>
-          <ul class="space-y-2 text-sm text-muted-foreground">
-            <li><a href="#" class="hover:text-primary">Sobre</a></li>
-            <li><a href="#" class="hover:text-primary">Blog</a></li>
-            <li><a href="#" class="hover:text-primary">Contato</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-semibold mb-4">Legal</h4>
-          <ul class="space-y-2 text-sm text-muted-foreground">
-            <li><a href="#" class="hover:text-primary">Privacidade</a></li>
-            <li><a href="#" class="hover:text-primary">Termos de Uso</a></li>
-            <li><a href="#" class="hover:text-primary">LGPD</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="border-t border-border/40 pt-8 text-center text-sm text-muted-foreground">
-        <p>© 2025 PropectaAI. Todos os direitos reservados.</p>
       </div>
     </div>
   </footer>

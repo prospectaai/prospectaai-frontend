@@ -48,7 +48,7 @@ export interface UserProfileResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://127.0.0.1:8080';
+  private readonly API_URL = (typeof process !== 'undefined' && process.env?.['BACKEND_URL']) || 'http://127.0.0.1:8080';
   private readonly TOKEN_KEY = 'access_token';
   private readonly TOKEN_EXPIRED_AT_KEY = 'token_expired_at';
   private readonly PRE_REGISTER_ID_KEY = 'preRegisterId';

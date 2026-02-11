@@ -38,73 +38,63 @@ export class LandingPageComponent {
  features = [
     {
       icon: 'globe',
-      title: 'Busca Automática no Google Maps',
-      description: 'Encontre empresas usando Google Places API com filtros avançados de localização e segmento'
-    },
-    {
-      icon: 'users',
-      title: 'Integração LinkedIn e Instagram',
-      description: 'Colete dados públicos de redes sociais para enriquecer seu banco de prospects'
-    },
-    {
-      icon: 'zap',
-      title: 'Automação com n8n',
-      description: 'Configure buscas periódicas e receba atualizações automáticas sem esforço manual'
+      title: 'Extração via Google Places',
+      description: 'Encontre empresas reais e atualizadas diretamente do Google Maps com filtros de localização e segmento'
     },
     {
       icon: 'target',
-      title: 'Filtros Inteligentes',
-      description: 'Segmente por setor, tamanho, localização e outros critérios relevantes'
+      title: 'Filtros Precisos',
+      description: 'Segmente sua busca por nicho, cidade ou região para atingir exatamente o público que você precisa'
+    },
+    {
+      icon: 'zap',
+      title: 'Prospecção Automatizada',
+      description: 'Nossa plataforma faz o trabalho pesado de busca para você, organizando tudo em um só lugar'
+    },
+    {
+      icon: 'layout',
+      title: 'Gestão Organizada',
+      description: 'Visualize seus leads de forma clara e intuitiva, facilitando o acompanhamento do seu funil de vendas'
     },
     {
       icon: 'bar-chart-3',
-      title: 'Exportação Flexível',
-      description: 'Exporte para CSV, Google Sheets ou integre diretamente com seu CRM'
+      title: 'Exportação Simples',
+      description: 'Leve seus dados para onde quiser com exportação rápida para CSV'
     },
     {
-      icon: 'mail',
-      title: 'Relatórios Automáticos',
-      description: 'Receba atualizações e novos resultados diretamente por email'
+      icon: 'shield-check',
+      title: 'Dados em Tempo Real',
+      description: 'Informações sempre atualizadas vindas da maior base de dados de empresas do mundo'
     }
   ];
 
   plans = [
     {
-      name: 'Starter',
+      name: 'Plano Mensal',
       price: 'R$ 97',
       period: '/mês',
-      description: 'Perfeito para freelancers e autônomos',
-      features: ['500 empresas/mês', 'Busca no Google Maps', 'Exportação CSV', 'Suporte por email', '1 usuário'],
-      highlighted: false
-    },
-    {
-      name: 'Professional',
-      price: 'R$ 197',
-      period: '/mês',
-      description: 'Ideal para agências e equipes',
+      description: 'Ideal para validar seu processo de vendas',
       features: [
-        '2.000 empresas/mês',
-        'Google Maps + LinkedIn',
-        'Exportação CSV e Google Sheets',
-        'Integração com CRMs',
-        'Até 5 usuários',
-        'Suporte prioritário'
+        '10.000 créditos de prospecção/mês',
+        'Busca ilimitada no Google Maps',
+        'Exportação CSV',
+        'Suporte via e-mail',
+        'Acesso completo à plataforma'
       ],
       highlighted: true
     },
     {
-      name: 'Enterprise',
-      price: 'R$ 497',
+      name: 'Plano Anual',
+      price: 'R$ 80,83',
       period: '/mês',
-      description: 'Para empresas que precisam escalar',
+      description: 'Economia garantida para o ano todo',
       features: [
-        '10.000 empresas/mês',
-        'Todas as integrações',
-        'API dedicada',
-        'Usuários ilimitados',
-        'Automações personalizadas',
-        'Suporte 24/7',
-        'Onboarding dedicado'
+        '120.000 créditos de prospecção/ano',
+        'Busca ilimitada no Google Maps',
+        'Exportação CSV',
+        'Suporte prioritário',
+        'Acesso completo à plataforma',
+        'Relatórios avançados'
       ],
       highlighted: false
     }
@@ -116,7 +106,7 @@ export class LandingPageComponent {
       role: 'Consultor de Vendas',
       company: 'Freelancer',
       content:
-        'Aumentei minha lista de prospects em 300% no primeiro mês. A automação me economiza horas de trabalho manual.',
+        'Aumentei minha lista de prospects em 300% no primeiro mês. O foco no Google Maps traz leads muito qualificados.',
       rating: 5
     },
     {
@@ -124,23 +114,15 @@ export class LandingPageComponent {
       role: 'Founder',
       company: 'Digital Growth Agency',
       content:
-        'Ferramenta essencial para nossa operação. Conseguimos encontrar e qualificar leads muito mais rápido.',
-      rating: 5
-    },
-    {
-      name: 'Roberto Costa',
-      role: 'Head of Sales',
-      company: 'TechSolutions',
-      content:
-        'O ROI foi imediato. Em uma semana já tínhamos recuperado o investimento com os novos clientes prospectados.',
+        'Ferramenta essencial para nossa operação. Conseguimos encontrar e organizar leads locais de forma muito rápida.',
       rating: 5
     }
   ];
 
   stats = [
-    { value: '10M+', label: 'Empresas no banco de dados' },
-    { value: '5.000+', label: 'Usuários ativos' },
-    { value: '98%', label: 'Taxa de satisfação' },
-    { value: '24/7', label: 'Automação contínua' }
+    { value: '100%', label: 'Dados do Google Maps' },
+    { value: '24h', label: 'Plataforma Online' },
+    { value: '98%', label: 'Precisão nos Dados' },
+    { value: 'MVP', label: 'Versão Beta Ativa' }
   ];
 }
