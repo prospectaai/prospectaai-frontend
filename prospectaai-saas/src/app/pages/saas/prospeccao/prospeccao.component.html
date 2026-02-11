@@ -1,5 +1,5 @@
 <layout-saas-main>
-  <div class="max-w-4xl mx-auto space-y-6 animate-fade-in">
+  <div class="max-w-4xl mx-auto space-y-6 mb-10">
     <!-- Header -->
     <div>
       <h1 class="text-3xl font-bold text-foreground mb-2">Nova Prospecção</h1>
@@ -8,14 +8,37 @@
       </p>
     </div>
 
+    <!-- Info Card -->
+    <ui-card class="glass-effect border-primary/20 border-0 shadow-glass">
+      <div class="p-6 flex items-start gap-4">
+        <div class="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <lucide-icon name="search" class="h-6 w-6 text-primary"></lucide-icon>
+        </div>
+        <div>
+          <h3 class="font-semibold text-foreground mb-1">Como funciona?</h3>
+          <p class="text-sm text-muted-foreground">
+            Nossa automação utilizará a Google Places API para buscar empresas que correspondam aos seus critérios.
+            Os dados serão coletados, filtrados e organizados automaticamente. Você receberá uma notificação quando
+            o processo for concluído.
+          </p>
+        </div>
+      </div>
+    </ui-card>
+
     <!-- Templates Carousel -->
     <div class="space-y-3">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-semibold text-foreground">Templates de Prospecção</h3>
         <button *ngIf="tpl.itemsSig().length > 3" type="button" (click)="openSelectTemplates()" class="text-xs text-primary hover:underline">Ver mais</button>
       </div>
-      <div *ngIf="tpl.loadingSig(); else templatesContent" class="flex items-center justify-center py-6">
-        <span class="inline-block h-6 w-6 rounded-full border-2 border-muted-foreground border-t-transparent animate-spin" aria-hidden="true"></span>
+      <div *ngIf="tpl.loadingSig(); else templatesContent" class="flex gap-3 overflow-x-auto pb-1">
+        <div *ngFor="let i of [1,2,3]" class="min-w-[200px] rounded-lg border bg-card text-card-foreground p-3">
+          <div class="flex items-center justify-between">
+            <app-skeleton width="70%" height="1.25rem"></app-skeleton>
+            <app-skeleton width="1rem" height="1rem"></app-skeleton>
+          </div>
+          <app-skeleton width="50%" height="0.75rem" className="mt-2"></app-skeleton>
+        </div>
       </div>
       <ng-template #templatesContent>
         <ng-container *ngIf="tpl.itemsSig().length === 0; else templatesList">
@@ -97,7 +120,9 @@
           </div>
           <div *ngIf="prospeccaoForm.get('useAddress')?.value" class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
             <div class="md:col-span-2 flex justify-end">
-              <ui-button variant="outline" size="sm" (click)="tryResolveMyLocation()">
+              <ui-button variant="outline" size="sm" (click)="tryResolveMyLocation()" [disabled]="isResolvingLocation()">
+                <lucide-icon *ngIf="!isResolvingLocation()" name="map-pin" class="h-4 w-4 mr-2"></lucide-icon>
+                <span *ngIf="isResolvingLocation()" class="mr-2 h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin"></span>
                 Minha localização
               </ui-button>
             </div>
@@ -212,23 +237,6 @@
       </div>
     </ui-card>
 
-    <!-- Info Card -->
-    <ui-card class="glass-effect border-primary/20 border-0 shadow-glass">
-      <div class="p-6 flex items-start gap-4">
-        <div class="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-          <lucide-icon name="search" class="h-6 w-6 text-primary"></lucide-icon>
-        </div>
-        <div>
-          <h3 class="font-semibold text-foreground mb-1">Como funciona?</h3>
-          <p class="text-sm text-muted-foreground">
-            Nossa automação utilizará a Google Places API para buscar empresas que correspondam aos seus critérios.
-            Os dados serão coletados, filtrados e organizados automaticamente. Você receberá uma notificação quando
-            o processo for concluído.
-          </p>
-        </div>
-      </div>
-    </ui-card>
-
     <!-- Toast -->
     <div
       *ngIf="toastVisible"
@@ -295,6 +303,24 @@
         <div class="p-4 border-t flex items-center justify-end gap-2">
           <button type="button" class="px-3 py-2 text-xs rounded-md border" (click)="closeDeleteTemplateModal()">Cancelar</button>
           <button type="button" class="px-3 py-2 text-xs rounded-md bg-destructive text-destructive-foreground" (click)="confirmDeleteTemplate()">Excluir</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Limite Atingido -->
+    <div *ngIf="showLimitModal()" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="relative bg-popover text-popover-foreground w-full max-w-sm rounded-xl shadow-lg border">
+        <div class="p-4 border-b flex items-center justify-between">
+          <h4 class="text-sm font-semibold text-destructive">Limite Atingido</h4>
+          <button type="button" class="text-xs text-muted-foreground hover:text-foreground" (click)="showLimitModal.set(false)">Fechar</button>
+        </div>
+        <div class="p-4 space-y-3 text-sm">
+          <p>Você atingiu o limite de prospecções da sua conta.</p>
+          <p class="text-muted-foreground">Por favor, aguarde ou entre em contato com o suporte para aumentar seu limite.</p>
+        </div>
+        <div class="p-4 border-t flex items-center justify-end gap-2">
+          <button type="button" class="px-3 py-2 text-xs rounded-md bg-primary text-primary-foreground" (click)="showLimitModal.set(false)">Entendido</button>
         </div>
       </div>
     </div>

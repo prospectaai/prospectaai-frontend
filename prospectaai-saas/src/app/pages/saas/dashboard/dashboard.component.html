@@ -24,7 +24,19 @@
     </div>
 
     <!-- Stats Grid -->
-    <div *ngIf="stats().length > 0; else statsEmpty" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div *ngIf="loading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+       <ui-card *ngFor="let i of [1,2,3,4]" class="glass-effect border-0 shadow-glass">
+         <ui-card-header class="pb-2">
+            <app-skeleton width="60%" height="1.25rem"></app-skeleton>
+         </ui-card-header>
+         <ui-card-content>
+            <app-skeleton width="40%" height="2rem" className="mb-2"></app-skeleton>
+            <app-skeleton width="80%" height="0.75rem"></app-skeleton>
+         </ui-card-content>
+       </ui-card>
+    </div>
+
+    <div *ngIf="!loading() && stats().length > 0; else statsEmpty" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <ui-card
         *ngFor="let stat of stats(); let i = index"
         class="glass-effect hover-lift border-0 shadow-glass"
@@ -46,22 +58,24 @@
     </div>
 
     <ng-template #statsEmpty>
-      <ui-card class="glass-effect border-0 shadow-glass">
-        <ui-card-content>
-          <div class="py-12 flex flex-col items-center justify-center text-center gap-3">
-            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <i-lucide name="BarChart3" class="w-6 h-6 text-primary"></i-lucide>
+      <ng-container *ngIf="!loading()">
+        <ui-card class="glass-effect border-0 shadow-glass">
+          <ui-card-content>
+            <div class="py-12 flex flex-col items-center justify-center text-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <i-lucide name="BarChart3" class="w-6 h-6 text-primary"></i-lucide>
+              </div>
+              <p class="text-sm text-muted-foreground">Sem dados para exibir no momento.</p>
+              <a routerLink="/saas/prospect">
+                <ui-button class="gap-2">
+                  Criar nova prospecção
+                  <i-lucide name="ArrowRight" class="h-4 w-4"></i-lucide>
+                </ui-button>
+              </a>
             </div>
-            <p class="text-sm text-muted-foreground">Sem dados para exibir no momento.</p>
-            <a routerLink="/saas/prospect">
-              <ui-button class="gap-2">
-                Criar nova prospecção
-                <i-lucide name="ArrowRight" class="h-4 w-4"></i-lucide>
-              </ui-button>
-            </a>
-          </div>
-        </ui-card-content>
-      </ui-card>
+          </ui-card-content>
+        </ui-card>
+      </ng-container>
     </ng-template>
 
     <!-- Recent Searches -->
@@ -92,6 +106,13 @@
                 </ui-button>
               </a>
             </div>
+          </div>
+          <div *ngIf="recentSearchesHasMore" class="pt-2">
+            <a routerLink="/saas/results">
+              <ui-button size="sm" class="w-full justify-center">
+                Ver Todas
+              </ui-button>
+            </a>
           </div>
         </div>
         <ng-template #emptyState>

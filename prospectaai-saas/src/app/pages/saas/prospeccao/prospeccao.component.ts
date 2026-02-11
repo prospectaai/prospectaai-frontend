@@ -7,7 +7,6 @@ import { CardComponent } from '../../../components/ui/card/card.component';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { InputComponent } from '../../../components/ui/input/input.component';
 import { LabelComponent } from '../../../components/ui/label/label.component';
-import { SelectComponent } from '../../../components/ui/select/select.component';
 import { SaasMainLayoutComponent } from '../../../components/layout/saas-main-layout/saas-main-layout.component';
 import { SliderComponent } from '../../../components/ui/slider/slider.component';
 import { AuthService } from '../../../shared/services/auth.service';
@@ -15,6 +14,8 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { Router } from '@angular/router';
 import { TasksService } from '../../../shared/services/tasks.service';
 import { ProspectTemplatesService, ProspectTemplateDto } from '../../../shared/services/prospect-templates.service';
+import { ProspectionsService } from '../../../shared/services/prospections.service';
+import { SkeletonComponent } from '../../../components/ui/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-prospeccao',
@@ -26,9 +27,9 @@ import { ProspectTemplatesService, ProspectTemplateDto } from '../../../shared/s
     ButtonComponent,
     InputComponent,
     LabelComponent,
-    SelectComponent,
     SliderComponent,
     SaasMainLayoutComponent,
+    SkeletonComponent
   ],
   templateUrl: './prospeccao.component.html',
   styleUrl: './prospeccao.component.css'
@@ -37,6 +38,7 @@ export class ProspeccaoComponent implements OnInit, AfterViewInit {
   prospeccaoForm!: FormGroup;
   toastVisible = false;
   isProcessing = signal(false);
+  isResolvingLocation = signal(false);
   templates = signal<ProspectTemplateDto[]>([]);
   states = signal<any[]>([]);
   cities = signal<any[]>([]);
@@ -48,8 +50,9 @@ export class ProspeccaoComponent implements OnInit, AfterViewInit {
   deleteTargetId = signal<string | null>(null);
   isEditMode = signal<boolean>(false);
   editTargetId = signal<string | null>(null);
+  showLimitModal = signal(false);
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private toast: ToastService, private router: Router, private tasks: TasksService, public tpl: ProspectTemplatesService, private http: HttpClient) {
+  constructor(private fb: FormBuilder, private auth: AuthService, private toast: ToastService, private router: Router, private tasks: TasksService, public tpl: ProspectTemplatesService, private http: HttpClient, public prospections: ProspectionsService) {
     effect(() => {
       const doneAt = this.tasks.getLastCompletedAt();
       if (doneAt && this.isProcessing()) {
@@ -190,6 +193,13 @@ export class ProspeccaoComponent implements OnInit, AfterViewInit {
       this.toast.warning('Atenção', 'Informe o tipo de negócio.');
       return;
     }
+
+    const usage = this.prospections.usageSig();
+    if (usage && usage.used >= usage.limit) {
+      this.showLimitModal.set(true);
+      return;
+    }
+
     if (useAddr) {
       const city = String(this.addressCity || '').trim();
       const state = String(this.addressState || '').trim();
@@ -357,6 +367,7 @@ export class ProspeccaoComponent implements OnInit, AfterViewInit {
         this.toast.warning('Atenção', 'Navegador sem suporte a geolocalização.');
         return;
       }
+      this.isResolvingLocation.set(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const lat = String(pos.coords.latitude || '');
@@ -364,14 +375,17 @@ export class ProspeccaoComponent implements OnInit, AfterViewInit {
           this.prospeccaoForm.patchValue({ latitude: lat, longitude: lng, location: `${lat},${lng}` });
           this.reverseGeocode(lat, lng);
           this.toast.success('Localização obtida', 'Usaremos sua localização atual.');
+          this.isResolvingLocation.set(false);
         },
         () => {
           this.toast.warning('Atenção', 'Não foi possível obter sua localização. Informe manualmente.');
+          this.isResolvingLocation.set(false);
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } catch {
       this.toast.warning('Atenção', 'Falha ao obter localização.');
+      this.isResolvingLocation.set(false);
     }
   }
 

@@ -29,22 +29,22 @@
             </button>
             <ng-container *ngIf="hasTasks; else emptyState">
               <div class="w-full overflow-x-auto">
-                <table class="min-w-full text-sm">
+                <table class="min-w-[800px] sm:min-w-full text-sm">
                   <thead class="sticky top-0 bg-background">
                     <tr class="text-muted-foreground">
-                      <th class="text-left py-2 px-2">Nome</th>
-                      <th class="text-left py-2 px-2">Tipo</th>
-                      <th class="text-left py-2 px-2">Início</th>
-                      <th class="text-left py-2 px-2">Fim</th>
-                      <th class="text-left py-2 px-2">Status</th>
+                      <th class="text-left py-2 px-2 whitespace-nowrap">Nome</th>
+                      <th class="text-left py-2 px-2 whitespace-nowrap">Tipo</th>
+                      <th class="text-left py-2 px-2 whitespace-nowrap">Início</th>
+                      <th class="text-left py-2 px-2 whitespace-nowrap">Fim</th>
+                      <th class="text-left py-2 px-2 whitespace-nowrap">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr *ngFor="let t of list" [class.opacity-60]="t.status === 'CONCLUIDA'" class="border-t">
-                      <td class="py-2 px-2">{{ t.name }}</td>
-                      <td class="py-2 px-2">{{ t.type }}</td>
-                      <td class="py-2 px-2">{{ t.start }}</td>
-                      <td class="py-2 px-2">{{ t.end || '—' }}</td>
+                      <td class="py-2 px-2 whitespace-nowrap">{{ t.name }}</td>
+                      <td class="py-2 px-2 whitespace-nowrap">{{ t.type }}</td>
+                      <td class="py-2 px-2 whitespace-nowrap">{{ t.start | date:'dd/MM/yyyy, HH:mm' }}</td>
+                      <td class="py-2 px-2 whitespace-nowrap">{{ t.end ? (t.end | date:'dd/MM/yyyy, HH:mm') : '—' }}</td>
                       <td class="py-2 px-2">
                         <div class="flex items-center gap-2">
                           <i-lucide *ngIf="t.status === 'CONCLUIDA'" name="CheckCircle2" class="w-4 h-4 text-muted-foreground"></i-lucide>

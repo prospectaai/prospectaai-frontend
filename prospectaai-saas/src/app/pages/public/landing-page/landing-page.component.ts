@@ -30,6 +30,8 @@ export class LandingPageComponent {
   isAuthenticated$!: Observable<boolean>;
 
   constructor(private authService: AuthService) {
+    // Garante que o estado seja verificado no momento da criação do componente
+    this.authService.isAuthenticated();
     this.isAuthenticated$ = this.authService.isAuthenticated$;
   }
 

@@ -5,13 +5,14 @@ import { LucideAngularModule } from 'lucide-angular';
 import { SaasMainLayoutComponent } from '../../../components/layout/saas-main-layout/saas-main-layout.component';
 import { CardComponent } from '../../../components/ui/card/card.component';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
+import { SkeletonComponent } from '../../../components/ui/skeleton/skeleton.component';
 import { ProspectionsService, ProspectionDetailDto } from '../../../shared/services/prospections.service';
 import { TasksService } from '../../../shared/services/tasks.service';
 
 @Component({
   selector: 'app-prospeccao-detalhe',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, SaasMainLayoutComponent, CardComponent, ButtonComponent],
+  imports: [CommonModule, LucideAngularModule, SaasMainLayoutComponent, CardComponent, ButtonComponent, SkeletonComponent],
   templateUrl: './prospeccao-detalhe.component.html',
   styleUrl: './prospeccao-detalhe.component.css'
 })
@@ -83,7 +84,12 @@ export class ProspeccaoDetalheComponent implements OnInit {
   private loadDetail(): void {
     const id = this.taskId();
     if (!id) return;
-    this.loading.set(true);
+
+    // Only show loading state if we don't have data yet
+    if (!this.detail()) {
+      this.loading.set(true);
+    }
+
     this.prospections.getDetail(id).subscribe({
       next: (dto) => {
         this.detail.set(dto);

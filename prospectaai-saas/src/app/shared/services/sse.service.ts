@@ -147,6 +147,7 @@ export class SseService {
           if (obj.status === 'PROCESSED') {
             this.prospections.loadAllSummaries();
             this.prospections.refreshAnalyticsOverview();
+            this.prospections.loadUsage();
           }
         });
       } catch {}

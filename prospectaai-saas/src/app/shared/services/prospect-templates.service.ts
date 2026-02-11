@@ -22,7 +22,7 @@ export interface ProspectTemplateRequest {
 })
 export class ProspectTemplatesService {
   private items = signal<ProspectTemplateDto[]>([]);
-  private loading = signal<boolean>(false);
+  private loading = signal<boolean>(true);
   public itemsSig = this.items.asReadonly();
   public loadingSig = this.loading.asReadonly();
 
@@ -40,6 +40,7 @@ export class ProspectTemplatesService {
     if (!this.auth.isBrowser()) return;
     const token = this.auth.getToken();
     if (!token || this.auth.isTokenExpired()) {
+      this.loading.set(false);
       this.auth.logoutExpired();
       return;
     }
@@ -50,7 +51,9 @@ export class ProspectTemplatesService {
         const arr = Array.isArray(list) ? list : [];
         this.items.set(arr);
       },
-      error: () => {},
+      error: () => {
+        this.loading.set(false);
+      },
       complete: () => {
         this.loading.set(false);
       }

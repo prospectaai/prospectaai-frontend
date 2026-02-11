@@ -56,7 +56,7 @@ export class AuthService {
   private lastValidationAt: number | null = null;
   private readonly VALIDATION_CACHE_MS = 15000;
 
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.isBrowser() ? this.hasToken() && !this.isTokenExpired() : false);
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.isBrowser() ? this.hasValidToken() : false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor(
@@ -66,6 +66,14 @@ export class AuthService {
 
   isBrowser(): boolean {
     return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+  }
+
+  hasValidToken(): boolean {
+    if (!this.isBrowser()) return false;
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    const expiredAt = localStorage.getItem(this.TOKEN_EXPIRED_AT_KEY);
+    if (!token || !expiredAt) return false;
+    return !this.isTokenExpired();
   }
 
   login(request: LoginRequest): Observable<LoginResponse> {
@@ -134,6 +142,8 @@ export class AuthService {
           this.setTokenExpiredAt(response.expiredAt);
           this.isAuthenticatedSubject.next(true);
           this.clearPreRegisterId();
+          // Força atualização do perfil após o checkout
+          this.fetchUserProfile().subscribe();
         })
       );
   }

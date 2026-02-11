@@ -32,6 +32,7 @@ export class SplashComponent implements OnInit {
       this.prospections.clearCaches();
     } catch {}
     this.sse.connect();
+    this.prospections.loadUsage();
     this.auth.fetchUserProfile().subscribe({
       next: () => {
         this.router.navigate(['/saas/dashboard']);

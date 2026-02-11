@@ -18,7 +18,18 @@ import { ButtonComponent } from '../button/button.component';
   styleUrl: './confirmation-modal.component.css'
 })
 export class ConfirmationModalComponent {
-  @Input() isOpen = false;
+  private _isOpen = false;
+  @Input() set isOpen(value: boolean) {
+    this._isOpen = value;
+    if (!value) {
+      this.confirmationForm.reset();
+      this.isLoading.set(false);
+      this.clearTimer();
+    }
+  }
+  get isOpen() {
+    return this._isOpen;
+  }
   @Input() email = '';
   @Output() confirm = new EventEmitter<string>();
   @Output() resend = new EventEmitter<void>();
@@ -65,6 +76,7 @@ export class ConfirmationModalComponent {
   }
 
   onClose() {
+    window.alert('[DEBUG] ConfirmationModal.onClose() emitindo close');
     this.close.emit();
     this.confirmationForm.reset();
     this.isLoading.set(false);

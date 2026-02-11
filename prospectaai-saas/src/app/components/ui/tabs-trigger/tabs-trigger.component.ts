@@ -22,6 +22,7 @@ import { TabsComponent } from '../tabs/tabs.component';
 })
 export class TabsTriggerComponent {
   @Input({ required: true }) value!: string;
+  @Input() disabled = false;
   @Output() tabClick = new EventEmitter<string>();
 
   private tabs = inject(TabsComponent);
@@ -30,12 +31,25 @@ export class TabsTriggerComponent {
     return this.isActive ? 'active' : 'inactive';
   }
 
+  @HostBinding('attr.disabled') get isDisabledAttr() {
+    return this.disabled ? 'disabled' : null;
+  }
+
+  @HostBinding('class.pointer-events-none') get isPointerDisabled() {
+    return this.disabled;
+  }
+
+  @HostBinding('class.opacity-50') get isOpacityDisabled() {
+    return this.disabled;
+  }
+
   get isActive(): boolean {
     return this.tabs.activeTab() === this.value;
   }
 
   @HostListener('click')
   onClick() {
+    if (this.disabled) return;
     // Atualiza diretamente o valor ativo no componente pai
     this.tabs.setActive(this.value);
     // Emite o evento para quem estiver escutando

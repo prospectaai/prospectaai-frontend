@@ -46,22 +46,43 @@
 
     <!-- Avatar e Configurações -->
     <div class="flex items-center gap-2 relative">
+      <!-- Usage Limit -->
+      <div class="hidden md:flex flex-col w-32 mr-2" *ngIf="prospections.usageSig() as usage">
+         <div class="flex justify-between text-[10px] text-muted-foreground mb-1 font-medium">
+           <span>Créditos</span>
+           <span>{{ usage.used }} / {{ usage.limit }}</span>
+         </div>
+         <div class="h-2 w-full bg-secondary rounded-full overflow-hidden border border-border/50">
+           <div class="h-full transition-all duration-500 rounded-full" [ngClass]="usageColorClass" [style.width.%]="usagePercent"></div>
+         </div>
+      </div>
+
       <button type="button" class="relative p-2 rounded-md hover:bg-muted/50" (click)="toggleNotifications()">
         <i-lucide name="Bell" class="w-5 h-5"></i-lucide>
         <span *ngIf="notifs.totalUnreadSig() > 0" class="absolute -top-1 -right-1 text-[10px] px-1.5 py-0.5 rounded-full bg-red-600 text-white">
           {{ notifs.totalUnreadSig() }}
         </span>
       </button>
-      <div *ngIf="notificationsOpen()" class="absolute right-12 top-10 z-50 w-80 rounded-md border bg-popover text-popover-foreground shadow-md">
+      <div
+        class="absolute right-12 top-10 z-50 w-80 rounded-md border bg-popover text-popover-foreground shadow-md transition-all opacity-0 scale-95 pointer-events-none"
+        [class.opacity-0]="!notificationsOpen()"
+        [class.pointer-events-none]="!notificationsOpen()"
+        [class.scale-95]="!notificationsOpen()"
+        [class.opacity-100]="notificationsOpen()"
+        [class.scale-100]="notificationsOpen()"
+        [class.pointer-events-auto]="notificationsOpen()"
+        aria-live="polite"
+        [attr.aria-hidden]="!notificationsOpen()"
+      >
         <div class="p-3 border-b flex items-center justify-between bg-muted/10">
           <span class="text-xs font-semibold">Notificações</span>
           <a routerLink="/saas/notifications" class="text-xs text-primary hover:underline">Ver todas</a>
         </div>
-        <div class="max-h-96 overflow-y-auto">
-          <ul *ngIf="listRenderReady()" class="divide-y divide-border/50" [attr.data-render]="renderKey()">
-            <li *ngFor="let n of notifs.itemsSig(); trackBy: trackById" class="block w-full min-h-12">
-              <details [open]="isExpanded(n.id)" (toggle)="onDetailsToggle(n.id, $event)" class="block">
-                <summary class="list-none w-full flex items-start gap-3 px-3 py-3 cursor-pointer select-none hover:bg-muted/50 focus:outline-none focus:bg-muted/50">
+        <div class="max-h-96 overflow-y-auto" style="transform: translateZ(0); will-change: transform; contain: layout style paint;">
+          <ul class="divide-y divide-border/50">
+            <li *ngFor="let n of notifs.itemsSig(); trackBy: trackById" class="block w-full min-h-[3rem]">
+              <div class="block">
+                <button type="button" (click)="toggleExpanded(n.id)" class="w-full flex items-start gap-3 px-3 py-3 cursor-pointer select-none hover:bg-muted/50 transition-colors text-left">
                   <i-lucide name="Bell" class="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground"></i-lucide>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-2">
@@ -76,14 +97,14 @@
                       {{ n.sentLabel }} • {{ n.datetime }}
                     </div>
                   </div>
-                </summary>
-                <div class="px-3 pb-3 pl-9">
+                </button>
+                <div *ngIf="isExpanded(n.id)" class="px-3 pb-3 pl-9 animate-fade-in">
                   <div *ngIf="n.content" class="text-xs text-muted-foreground leading-relaxed break-words mb-2">
                     {{ n.content }}
                   </div>
                   <a *ngIf="n.link" [routerLink]="n.link" class="text-xs text-primary hover:underline inline-block font-medium">Abrir</a>
                 </div>
-              </details>
+              </div>
             </li>
           </ul>
           <div *ngIf="notifs.listPage().length === 0" class="p-6 text-center text-xs text-muted-foreground">

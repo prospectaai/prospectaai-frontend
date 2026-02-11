@@ -2,6 +2,8 @@ import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../shared/services/auth.service';
+import { HttpClient } from '@angular/common/http';
+import { ToastService } from '../../../shared/services/toast.service';
 import { CardComponent } from '../../../components/ui/card/card.component';
 import { CardHeaderComponent } from '../../../components/ui/card-header/card-header.component';
 import { CardTitleComponent } from '../../../components/ui/card-title/card-title.component';
@@ -35,7 +37,7 @@ import { LucideAngularModule } from 'lucide-angular';
 export class GerenciamentoAssinaturaComponent implements OnInit {
   isProcessing = signal(false);
   showCancelModal = signal(false);
-  
+
   // Dados da assinatura
   subscriptionPlan = signal<string>('');
   subscriptionPlanType = signal<'MONTHLY' | 'ANNUAL' | null>(null);
@@ -48,7 +50,7 @@ export class GerenciamentoAssinaturaComponent implements OnInit {
   autoBilling = signal<boolean>(true); // Sempre true pois está no cartão de crédito
   cancelAtPeriodEnd = signal<boolean>(false);
 
-  constructor(private auth: AuthService, private router: Router) {
+  constructor(private auth: AuthService, private router: Router, private http: HttpClient, private toast: ToastService) {
     this.loadSubscriptionData();
   }
 
@@ -81,7 +83,7 @@ export class GerenciamentoAssinaturaComponent implements OnInit {
     this.renewalDate.set(this.formatDate(profile.subscriptionNextBillingDate) || '-');
     this.billingEmail.set(profile.email);
     this.subscriptionStartDate.set(this.formatDate(profile.accountCreatedAt) || '-');
-    
+
     // Calcula valor baseado no plano (valores fictícios - serão substituídos pelo backend)
     if (profile.subscriptionPlan === 'ANNUAL') {
       this.subscriptionValue.set('R$ 999,00/ano');
@@ -94,10 +96,10 @@ export class GerenciamentoAssinaturaComponent implements OnInit {
     if (!dateString) return '-';
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', { 
-        day: '2-digit', 
-        month: '2-digit', 
-        year: 'numeric' 
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
       });
     } catch {
       return '-';
@@ -106,15 +108,28 @@ export class GerenciamentoAssinaturaComponent implements OnInit {
 
   payNextPeriod() {
     if (this.isProcessing()) return;
-    
-    // TODO: Implementar chamada ao backend para pagar próximo período
+
     this.isProcessing.set(true);
-    
-    // Simulação - será substituído pela chamada real ao backend
-    setTimeout(() => {
-      window.alert('Funcionalidade de pagamento será implementada no backend.');
-      this.isProcessing.set(false);
-    }, 1000);
+    const url = `${this.auth.getApiUrl()}/api/v1/billing/subscription/pay-next-period`;
+    this.http.post<void>(url, null).subscribe({
+      next: () => {
+        this.toast.success('Pagamento realizado', 'Próximo período antecipado com sucesso.');
+        this.auth.fetchUserProfile().subscribe({
+          next: (profile) => {
+            this.updateSubscriptionData(profile);
+            this.isProcessing.set(false);
+          },
+          error: () => {
+            this.isProcessing.set(false);
+          }
+        });
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'Não foi possível realizar o pagamento antecipado.';
+        this.toast.error('Erro no pagamento', msg);
+        this.isProcessing.set(false);
+      }
+    });
   }
 
   openCancelModal() {
@@ -127,17 +142,31 @@ export class GerenciamentoAssinaturaComponent implements OnInit {
 
   confirmCancel() {
     if (this.isProcessing()) return;
-    
+
     this.isProcessing.set(true);
-    
-    // TODO: Implementar chamada ao backend para cancelar assinatura
-    // A assinatura será desativada no próximo ciclo
-    setTimeout(() => {
-      this.cancelAtPeriodEnd.set(true);
-      this.showCancelModal.set(false);
-      window.alert('Sua assinatura será cancelada ao final do período atual. Você continuará tendo acesso até ' + this.renewalDate() + '.');
-      this.isProcessing.set(false);
-    }, 1000);
+
+    const url = `${this.auth.getApiUrl()}/api/v1/billing/subscription/cancel-at-period-end`;
+    this.http.post<void>(url, null).subscribe({
+      next: () => {
+        this.cancelAtPeriodEnd.set(true);
+        this.showCancelModal.set(false);
+        this.toast.info('Cancelamento programado', `Você continuará com acesso até ${this.renewalDate()}.`);
+        this.auth.fetchUserProfile().subscribe({
+          next: (profile) => {
+            this.updateSubscriptionData(profile);
+            this.isProcessing.set(false);
+          },
+          error: () => {
+            this.isProcessing.set(false);
+          }
+        });
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'Não foi possível programar o cancelamento.';
+        this.toast.error('Erro no cancelamento', msg);
+        this.isProcessing.set(false);
+      }
+    });
   }
 
   goBack() {

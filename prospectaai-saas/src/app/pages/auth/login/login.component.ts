@@ -100,8 +100,8 @@ export class LoginPageComponent implements OnInit {
       if (token) {
         // Se veio pelo popup, devolve o token ao opener e fecha
         if (typeof window !== 'undefined' && window.opener) {
-          this.authService.handleOAuthCallback(token, new Date(expiredAt), false);
-          window.opener.postMessage({ type: 'oauth-result', token }, window.location.origin);
+          this.authService.handleOAuthCallback(token, new Date(expiredAt || ''), false);
+          window.opener.postMessage({ type: 'oauth-result', token, expiredAt }, window.location.origin);
           window.close();
           return;
         }

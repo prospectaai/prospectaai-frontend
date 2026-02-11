@@ -13,6 +13,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { ProspectionsService, ProspectionSummaryDto } from '../../../shared/services/prospections.service';
 import { TasksService } from '../../../shared/services/tasks.service';
 import { AnalyticsOverviewDto } from '../../../shared/dtos/analytics-overview.dto';
+import { SkeletonComponent } from '../../../components/ui/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,7 +27,8 @@ import { AnalyticsOverviewDto } from '../../../shared/dtos/analytics-overview.dt
     CardContentComponent,
     CardTitleComponent,
     CardDescriptionComponent,
-    LucideAngularModule
+    LucideAngularModule,
+    SkeletonComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
@@ -41,7 +43,14 @@ export class DashboardPageComponent implements OnInit {
     private authService: AuthService,
     private prospectionsService: ProspectionsService,
     private tasks: TasksService
-  ) {}
+  ) {
+    // Initialize signals based on service state to avoid flicker
+    const cachedAnalytics = this.prospectionsService.analyticsSig();
+    if (cachedAnalytics) {
+      this.analytics.set(cachedAnalytics);
+      this.loading.set(false);
+    }
+  }
 
   stats = signal<any[]>([]);
   private doneEffect = effect(() => {
@@ -49,10 +58,13 @@ export class DashboardPageComponent implements OnInit {
     if (doneAt) {
       this.prospectionsService.getAnalyticsOverview().subscribe({
         next: (data) => {
+          this.loading.set(false);
           this.analytics.set(data);
           this.updateStats(data);
         },
-        error: () => {}
+        error: () => {
+          this.loading.set(false);
+        }
       });
       this.prospectionsService.loadAllSummaries();
     }
@@ -62,16 +74,20 @@ export class DashboardPageComponent implements OnInit {
     if (summaries && summaries.length > 0) {
       this.prospectionsService.getAnalyticsOverview().subscribe({
         next: (data) => {
+          this.loading.set(false);
           this.analytics.set(data);
           this.updateStats(data);
         },
-        error: () => {}
+        error: () => {
+          this.loading.set(false);
+        }
       });
     }
   }, { allowSignalWrites: true });
   private analyticsEffect = effect(() => {
     const data = this.prospectionsService.analyticsSig();
     if (data) {
+      this.loading.set(false);
       this.analytics.set(data);
       this.updateStats(data);
     }
@@ -102,10 +118,12 @@ export class DashboardPageComponent implements OnInit {
     // Load Analytics
     this.prospectionsService.getAnalyticsOverview().subscribe({
       next: (data) => {
+        this.loading.set(false);
         this.analytics.set(data);
         this.updateStats(data);
       },
       error: () => {
+        this.loading.set(false);
         // Fallback or empty state
       }
     });
@@ -163,6 +181,11 @@ export class DashboardPageComponent implements OnInit {
     const filtered = arr
       .filter(s => s.status === 'PROCESSED' && (s.resultsCount || 0) > 0)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    return filtered.slice(0, 5);
+    return filtered.slice(0, 3);
+  }
+  get recentSearchesHasMore() {
+    const arr = this.prospectionsService.summariesSig();
+    const count = arr.filter(s => s.status === 'PROCESSED' && (s.resultsCount || 0) > 0).length;
+    return count > 3;
   }
 }

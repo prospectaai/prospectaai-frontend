@@ -12,6 +12,7 @@ import { ProspectionsService, ProspectionSummaryDto } from '../../../shared/serv
 import { TasksService } from '../../../shared/services/tasks.service';
 import { SelectComponent } from '../../../components/ui/select/select.component';
 import { ModalComponent } from '../../../components/ui/modal/modal.component';
+import { SkeletonComponent } from '../../../components/ui/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-resultados',
@@ -26,14 +27,15 @@ import { ModalComponent } from '../../../components/ui/modal/modal.component';
     SelectComponent,
     RouterLink,
     ModalComponent,
-    SaasMainLayoutComponent
+    SaasMainLayoutComponent,
+    SkeletonComponent
 ],
   templateUrl: './resultados.component.html',
   styleUrl: './resultados.component.css'
 })
 export class ResultadosComponent implements OnInit {
   searchForm!: FormGroup;
-  loading = signal<boolean>(false);
+  loading = signal<boolean>(true);
   items = signal<ProspectionSummaryDto[]>([]);
   page = signal<number>(1);
   readonly pageSize = 6;
@@ -50,7 +52,10 @@ export class ResultadosComponent implements OnInit {
     this.items.set(this.prospections.getSummaries());
   });
 
-  constructor(private fb: FormBuilder, private prospections: ProspectionsService, private tasks: TasksService) {}
+  constructor(private fb: FormBuilder, private prospections: ProspectionsService, private tasks: TasksService) {
+    // Initialize loading based on service state
+    this.loading.set(this.prospections.loadingSummariesSig());
+  }
 
   ngOnInit() {
     this.searchForm = this.fb.group({

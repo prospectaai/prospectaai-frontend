@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectorRef, NgZone } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
@@ -7,6 +7,7 @@ import { NotificationsService, NotificationItem } from '../../../shared/services
 import { SaasTasksAccordionComponent } from '../saas-tasks-accordion/saas-tasks-accordion.component';
 import { TasksService } from '../../../shared/services/tasks.service';
 import { ToastContainerComponent } from '../../ui/toast-container/toast-container.component';
+import { ProspectionsService } from '../../../shared/services/prospections.service';
 
 @Component({
   selector: 'layout-saas-main',
@@ -23,9 +24,10 @@ export class SaasMainLayoutComponent implements OnInit {
   expandedIds = signal<Set<string>>(new Set());
   listRenderReady = signal<boolean>(true);
   renderKey = signal<number>(0);
+  viewItems: NotificationItem[] = [];
   trackById = (_: number, item: NotificationItem) => item.id;
 
-  constructor(private auth: AuthService, public notifs: NotificationsService, private tasks: TasksService, private cdr: ChangeDetectorRef) {
+  constructor(private auth: AuthService, public notifs: NotificationsService, private tasks: TasksService, private cdr: ChangeDetectorRef, private zone: NgZone, public prospections: ProspectionsService) {
     try {
       const profile = this.auth.getUserProfile() as UserProfileResponse | null;
       if (profile?.avatarUrl) this.avatarUrl.set(profile.avatarUrl);
@@ -40,6 +42,7 @@ export class SaasMainLayoutComponent implements OnInit {
   ngOnInit(): void {
     this.tasks.loadAllProcessing();
     this.tasks.startProcessedPolling();
+    this.prospections.loadUsage();
   }
 
   toggleMobileMenu() {
@@ -50,16 +53,10 @@ export class SaasMainLayoutComponent implements OnInit {
     const willOpen = !this.notificationsOpen();
     this.notificationsOpen.set(willOpen);
     if (willOpen) {
-      this.listRenderReady.set(false);
-      this.notifs.markAllUnreadAsRead();
-      this.renderKey.set(Date.now());
-      this.cdr.detectChanges();
-      setTimeout(() => {
-        this.listRenderReady.set(true);
-        this.cdr.detectChanges();
-      }, 0);
+      setTimeout(() => this.cdr.detectChanges(), 0);
     } else {
       this.expandedIds.set(new Set());
+      this.notifs.markAllUnreadAsRead();
     }
   }
 
@@ -74,6 +71,7 @@ export class SaasMainLayoutComponent implements OnInit {
       }
       return newSet;
     });
+    this.cdr.detectChanges();
   }
 
   isExpanded(id: string): boolean {
@@ -94,7 +92,20 @@ export class SaasMainLayoutComponent implements OnInit {
   }
 
   onDetailsToggle(id: string, ev: Event) {
-    const open = (ev.target as HTMLDetailsElement)?.open ?? false;
-    this.setExpanded(id, open);
+    // Legacy support or remove if unused
+  }
+
+  get usagePercent(): number {
+    const u = this.prospections.usageSig();
+    if (!u || u.limit === 0) return 0;
+    return Math.min(100, (u.used / u.limit) * 100);
+  }
+
+  get usageColorClass(): string {
+    const p = this.usagePercent;
+    if (p >= 100) return 'bg-red-600'; // Strong red
+    if (p >= 90) return 'bg-red-400'; // Light red
+    if (p >= 70) return 'bg-yellow-500'; // Yellow
+    return 'bg-green-500'; // Green
   }
 }

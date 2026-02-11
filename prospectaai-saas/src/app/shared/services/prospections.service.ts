@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, effect } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
@@ -17,6 +17,11 @@ export interface ProspectionSummaryDto {
   status: AsyncTaskStatus;
   createdAt: string;
   resultsCount: number;
+}
+
+export interface ProspectionUsageDto {
+  used: number;
+  limit: number;
 }
 
 export interface ProspectionRecordDto {
@@ -47,15 +52,34 @@ export interface ProspectionDetailDto {
 })
 export class ProspectionsService {
   private summaries = signal<ProspectionSummaryDto[]>([]);
-  private loadingSummaries = signal<boolean>(false);
+  private loadingSummaries = signal<boolean>(true);
   private detailsCache = new Map<number, ProspectionDetailDto>();
   private analytics = signal<AnalyticsOverviewDto | null>(null);
+  private usage = signal<ProspectionUsageDto | null>({ used: 0, limit: 0 });
   private fallbackNotified = new Set<number>();
   public summariesSig = this.summaries.asReadonly();
   public loadingSummariesSig = this.loadingSummaries.asReadonly();
   public analyticsSig = this.analytics.asReadonly();
+  public usageSig = this.usage.asReadonly();
 
-  constructor(private http: HttpClient, private auth: AuthService, private notifs: NotificationsService, private tasks: TasksService) {}
+  constructor(private http: HttpClient, private auth: AuthService, private notifs: NotificationsService, private tasks: TasksService) {
+    effect(() => {
+      const last = this.tasks.getLastCompletedAt();
+      if (last) {
+        this.loadUsage();
+      }
+    });
+  }
+
+  loadUsage(): void {
+    const url = `${this.auth.getApiUrl()}/api/v1/async/prospect/usage`;
+    this.http.get<ProspectionUsageDto>(url).subscribe({
+      next: (data) => this.usage.set(data),
+      error: (err) => {
+        console.error('Failed to load usage:', err);
+      }
+    });
+  }
 
   loadAllSummaries(): void {
     if (!this.auth.isBrowser()) return;
@@ -98,6 +122,7 @@ export class ProspectionsService {
       },
       error: () => {
         this.summaries.set([]);
+        this.loadingSummaries.set(false);
       },
       complete: () => {
         this.loadingSummaries.set(false);

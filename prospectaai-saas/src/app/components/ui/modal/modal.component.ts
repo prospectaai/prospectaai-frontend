@@ -13,6 +13,7 @@ export class ModalComponent {
   @Input() isOpen = false;
   @Input() title = '';
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
+  @Input() showCloseButton = true;
   @Output() close = new EventEmitter<void>();
 
   onClose() {
